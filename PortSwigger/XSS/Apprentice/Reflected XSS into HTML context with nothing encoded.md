@@ -55,3 +55,8 @@ If another user of the application requests the attacker's URL, then the script 
 
 So this is what we encounter when we enter the lab
 
+![|407x431](../../../0.%20Assets/Reflected%20XSS%20into%20HTML%20context%20with%20nothing%20encoded-1782660007253.webp)
+
+As we mentioned in the definition of the vulnerability, we know `Reflected XSS` occurs normally in `input` tags or `URL's` so let's do some testing in the input field and the URL
+
+- Something worth noting is that for testing purposes while searching for XSS vulnerabilities, we don't 
