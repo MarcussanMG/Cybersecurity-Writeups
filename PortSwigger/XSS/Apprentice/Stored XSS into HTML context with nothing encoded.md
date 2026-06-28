@@ -55,3 +55,19 @@ In a real attack, the payload is usually more malicious, for example:
 ---
 # Lab
 
+In this case as it was mentioned in the explanation, we need to find somewhere in the website where we can interact with the database of the web app or somewhere where we can make data persistent, like comments on a post, and that is what we are going to do.
+
+- `Stored XSS` is dangerous because when we get to do it in a web app, if another user accesses that resource the XSS will probe meaning that we do not need to do any `social engineering` to take advantage of users
+
+So that is what we are going to do, we are going to look for a post
+
+
+![](../../../Stored%20XSS%20into%20HTML%20context%20with%20nothing%20encoded-1782671993083.webp)
+
+And try to leave a comment, but we are going to tweak it to store our payload , so every time a user accesses the comments of the post, our malicious code will execute
+
+![](../../../Stored%20XSS%20into%20HTML%20context%20with%20nothing%20encoded-1782672096206.webp)
+
+Once we have the post uploaded, when we try to access it we will be probed with the alert message
+
+![](../../../Stored%20XSS%20into%20HTML%20context%20with%20nothing%20encoded-1782672122955.webp)
