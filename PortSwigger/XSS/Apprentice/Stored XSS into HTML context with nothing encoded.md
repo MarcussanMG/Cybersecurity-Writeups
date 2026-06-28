@@ -62,12 +62,12 @@ In this case as it was mentioned in the explanation, we need to find somewhere i
 So that is what we are going to do, we are going to look for a post
 
 
-![](../../../Stored%20XSS%20into%20HTML%20context%20with%20nothing%20encoded-1782671993083.webp)
+![](Stored%20XSS%20into%20HTML%20context%20with%20nothing%20encoded-1782671993083.webp)
 
 And try to leave a comment, but we are going to tweak it to store our payload , so every time a user accesses the comments of the post, our malicious code will execute
 
-![](../../../Stored%20XSS%20into%20HTML%20context%20with%20nothing%20encoded-1782672096206.webp)
+![](Stored%20XSS%20into%20HTML%20context%20with%20nothing%20encoded-1782672096206.webp)
 
 Once we have the post uploaded, when we try to access it we will be probed with the alert message
 
-![](../../../Stored%20XSS%20into%20HTML%20context%20with%20nothing%20encoded-1782672122955.webp)
+![](Stored%20XSS%20into%20HTML%20context%20with%20nothing%20encoded-1782672122955.webp)
