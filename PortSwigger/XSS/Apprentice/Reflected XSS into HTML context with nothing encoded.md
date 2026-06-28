@@ -56,4 +56,4 @@ If another user of the application requests the attacker's URL, then the script 
 So this is what we encounter when we enter the lab
 
 
-sdf
+![](Pasted%20image%2020260628170905.png)
