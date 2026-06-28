@@ -42,18 +42,17 @@ The browser executes:
 
 # LAB
 
-
-![](DOM%20XSS%20in%20document.write%20sink%20using%20source%20location.search-1782673329097.webp)
+![](../../../0.%20Assets/DOM%20XSS%20in%20document.write%20sink%20using%20source%20location.search-1782675441924.webp)
 
 so as we can see here, what we look for in the search bar appears reflected in the `DOM`, trying to fetch a file with the name of what we looked for.
 
 - Something worth noting is that what we are typing is already being reflected inside of an `HTML tag`,  and this is done in an insecure way, its java script doing it directly in the DOM
--
+
 
 So what we are going to do is to close the tag where the `img` tag closes so we can add a different type of tag, in this case `script` and then our script
 
 
-![](DOM%20XSS%20in%20document.write%20sink%20using%20source%20location.search-1782673542112.webp)
+![](../../../0.%20Assets/DOM%20XSS%20in%20document.write%20sink%20using%20source%20location.search-1782675184957.webp)
 
 This is how it would look
 
@@ -62,5 +61,5 @@ This is how it would look
 - As we can see we are closing the `img` tag with our input, so we can then add our own tag
 
 
+![](../../../0.%20Assets/DOM%20XSS%20in%20document.write%20sink%20using%20source%20location.search-1782675226347.webp)
 
-![](DOM%20XSS%20in%20document.write%20sink%20using%20source%20location.search-1782673548262.webp)
