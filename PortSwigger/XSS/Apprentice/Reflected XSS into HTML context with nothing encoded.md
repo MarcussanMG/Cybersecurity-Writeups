@@ -57,3 +57,4 @@ So this is what we encounter when we enter the lab
 
 
 ![](Assets/Pasted%20image%2020260628170905.png)
+![](../../../0.%20Assets/Reflected%20XSS%20into%20HTML%20context%20with%20nothing%20encoded-1782659881419.webp)
