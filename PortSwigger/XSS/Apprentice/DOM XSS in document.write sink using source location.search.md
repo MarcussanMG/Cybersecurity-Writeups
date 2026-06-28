@@ -47,13 +47,19 @@ The browser executes:
 
 so as we can see here, what we look for in the search bar appears reflected in the `DOM`, trying to fetch a file with the name of what we looked for.
 
-- Something worth noting is that what we are typing is already being reflected inside of an `HTML tag`,  and this is done in an insecure way, its java script doing it directly
+- Something worth noting is that what we are typing is already being reflected inside of an `HTML tag`,  and this is done in an insecure way, its java script doing it directly in the DOM
+-
 
-So what we are going to do is to close the tag where
+So what we are going to do is to close the tag where the `img` tag closes so we can add a different type of tag, in this case `script` and then our script
+
 
 ![](DOM%20XSS%20in%20document.write%20sink%20using%20source%20location.search-1782673542112.webp)
 
+This is how it would look
 
+![](../../../0.%20Assets/DOM%20XSS%20in%20document.write%20sink%20using%20source%20location.search-1782674382825.webp)
+
+- As we can see we are closing the `img` tag with our input, so we can then add our own tag
 
 
 
