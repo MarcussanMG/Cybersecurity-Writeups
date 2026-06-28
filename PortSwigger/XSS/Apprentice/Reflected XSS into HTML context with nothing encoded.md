@@ -1,8 +1,28 @@
 ---
 LAB: https://portswigger.net/web-security/cross-site-scripting/reflected/lab-html-context-nothing-encoded
+Difficulty: Apprentice
+Category: XSS
 ---
 ---
 ```insta-toc
+---
+title:
+  name:
+  level:
+  center:
+exclude:
+style:
+  listType:
+omit:
+levels:
+  min:
+  max:
+---
+
+# Table of Contents
+
+- Reflected XSS Definition
+- Lab
 ```
 ---
 
@@ -35,5 +55,5 @@ If another user of the application requests the attacker's URL, then the script 
 
 So this is what we encounter when we enter the lab
 
-![[Pasted image 20260628160023.png]]
+
 
