@@ -11,14 +11,14 @@
             "id": "fef8b7c76c02f853",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "split-diff-view",
               "state": {
-                "file": "PortSwigger/XSS/Apprentice/Reflected XSS into HTML context with nothing encoded.md",
-                "mode": "source",
-                "source": false
+                "aFile": ".gitignore",
+                "bFile": ".gitignore",
+                "aRef": ""
               },
-              "icon": "lucide-file",
-              "title": "Reflected XSS into HTML context with nothing encoded"
+              "icon": "diff",
+              "title": "Diff: .gitignore  (Working Tree)"
             }
           }
         ]
@@ -94,7 +94,6 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "PortSwigger/XSS/Apprentice/Reflected XSS into HTML context with nothing encoded.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +103,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for Reflected XSS into HTML context with nothing encoded"
+              "title": "Backlinks"
             }
           },
           {
@@ -113,12 +112,11 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "PortSwigger/XSS/Apprentice/Reflected XSS into HTML context with nothing encoded.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from Reflected XSS into HTML context with nothing encoded"
+              "title": "Outgoing links"
             }
           },
           {
@@ -156,13 +154,12 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "PortSwigger/XSS/Apprentice/Reflected XSS into HTML context with nothing encoded.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of Reflected XSS into HTML context with nothing encoded"
+              "title": "Outline"
             }
           },
           {
@@ -194,10 +191,12 @@
       "bases:Create new base": false
     }
   },
-  "active": "4a08526ea16cfa4d",
+  "active": "fef8b7c76c02f853",
   "lastOpenFiles": [
-    "0. Assets/Pasted image 20260628170905.png",
+    "PortSwigger/XSS/Apprentice/Reflected XSS into HTML context with nothing encoded.md",
+    "Untitled.md",
+    "New Text Document.txt",
     "Untitled.base",
-    "PortSwigger/XSS/Apprentice/Reflected XSS into HTML context with nothing encoded.md"
+    "0. Assets/Pasted image 20260628170905.png"
   ]
 }

@@ -1,0 +1,32 @@
+# Obsidian
+.obsidian/
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# macOS
+.DS_Store
+
+# Temporary files
+*.tmp
+*.temp
+
+# Logs
+*.log
+
+# Vim
+*.swp
+
+# VSCode
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+
+# Keep all screenshots and assets
+!Assets/
