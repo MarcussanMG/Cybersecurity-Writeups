@@ -1,5 +1,5 @@
 ---
-Category:
+Category: test
 LAB:
 Difficulty:
 ---
