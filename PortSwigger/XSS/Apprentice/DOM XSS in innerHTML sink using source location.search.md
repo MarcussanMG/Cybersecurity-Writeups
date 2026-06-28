@@ -34,6 +34,7 @@ Chain of events:
 5. The JavaScript inside `onerror` executes.
 
 So basically as I explained previously, we create an `img` tag (considering `innerHTML` does not run `<script>` {for security reasons} but allows other HTML tags) We make an error occur on purpose and when an error occurs we run our malicious payload
+
 ![](../../../0.%20Assets/DOM%20XSS%20in%20innerHTML%20sink%20using%20source%20location.search-1782686718468.webp)
 
 
