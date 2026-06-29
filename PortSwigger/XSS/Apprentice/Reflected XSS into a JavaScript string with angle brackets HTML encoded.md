@@ -25,7 +25,7 @@ I crafted this payload
 ';alert(1)//
 ```
 
-![](../../../0.%20Assets/Reflected%20XSS%20into%20a%20JavaScript%20string%20with%20angle%20brackets%20HTML%20encoded-1782695454954.webp)
+![](../../../0.%20Assets/Reflected%20XSS%20into%20a%20JavaScript%20string%20with%20angle%20brackets%20HTML%20encoded-1782695893449.webp)
 
 And because JavaScript executes its code line by line, it will effectively create an empty variable and then run our code
 
