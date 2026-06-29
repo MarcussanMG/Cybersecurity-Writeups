@@ -23,6 +23,8 @@ If we open the source code
 
 ![](../../../0.%20Assets/Stored%20XSS%20into%20anchor%20href%20attribute%20with%20double%20quotes%20HTML-encoded-1782693644653.webp)
 
+![](../../../0.%20Assets/Stored%20XSS%20into%20anchor%20href%20attribute%20with%20double%20quotes%20HTML-encoded-1782693910065.webp)
+
 
 and if we click it
 
