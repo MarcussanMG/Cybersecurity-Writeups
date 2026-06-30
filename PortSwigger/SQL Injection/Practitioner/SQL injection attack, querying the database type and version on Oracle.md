@@ -74,4 +74,20 @@ This is the next payload i am going to try and it's a simple tweak, just adding 
 
 And there we go, we didn't encounter an error. 
 
-The last g
+The last thing we need to do is substitute one of the `NULL` parameters for our `v$version` and if it doesn't work try the other position because remember this:
+
+![](../../../0.%20Assets/SQL%20injection%20attack,%20querying%20the%20database%20type%20and%20version%20on%20Oracle-1782862111565.webp)
+
+We don't know where the space is , we know it's 2 positions now but don't which one might be open.
+
+And apparently i forgot to mention something (I was doing the lab while writing this so i encountered some errors) 
+- `v$version` This is the table 
+	- `Banner` is what we want
+
+and because `v$version` already is a table we don't need to call `Dual`
+
+```
+' UNION select banner, NULL from v$version -- -
+```
+
+![](../../../0.%20Assets/SQL%20injection%20attack,%20querying%20the%20database%20type%20and%20version%20on%20Oracle-1782863006700.webp)
