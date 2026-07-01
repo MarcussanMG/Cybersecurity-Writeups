@@ -20,11 +20,12 @@ We can use `Burp Suite` to figure out what that is
 
 ![](../../../0.%20Assets/DOM%20XSS%20in%20document.write%20sink%20using%20source%20location.search%20inside%20a%20select%20element-1782928666711.webp)
 
-Great so we know the options in the `select` are the `StoreID` and that the JavaScript looks in the URL for that parameter, and then writes 
-
-[Document.write explanation](https://developer.mozilla.org/en-US/docs/Web/API/Document/write)
+Great so we know the options in the `select` are the `StoreID` and that the JavaScript looks in the URL for that parameter, and then writes with `Document.Write`
+- [Document.write explanation](https://developer.mozilla.org/en-US/docs/Web/API/Document/write)
 
 ![](../../../0.%20Assets/DOM%20XSS%20in%20document.write%20sink%20using%20source%20location.search%20inside%20a%20select%20element-1782732547092.webp)
+
+---
 
 Cool, so we know that what  we input in the URL then gets parsed by JavaScript and creates an HTML tag but if we look deeper we will see that it only does it with the `storeId` so, let's add to the URL with this payload for testing if we can inject new HTML in the website
 
