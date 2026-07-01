@@ -10,7 +10,7 @@ As we can see we can see the `productId` on the `URL` let's see on the source co
 
 `Control+U` 
 
-Instead of focusing on that we can see that the JavaScript checks for the `storeID` parameter
+Instead of focusing on the `productId`, we can see that the JavaScript checks for the `storeID` parameter
 
 ![](../../../0.%20Assets/DOM%20XSS%20in%20document.write%20sink%20using%20source%20location.search%20inside%20a%20select%20element-1782927121916.webp)
 
