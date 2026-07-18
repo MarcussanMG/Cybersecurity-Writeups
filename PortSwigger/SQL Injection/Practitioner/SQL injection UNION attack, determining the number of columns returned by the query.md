@@ -6,3 +6,4 @@ Difficulty: Practitioner
 ---
 
 
+This is a very simple lab, as we explored in different labs, `Union`  is a statement we can use in SQL for querying two tables at the same time 
