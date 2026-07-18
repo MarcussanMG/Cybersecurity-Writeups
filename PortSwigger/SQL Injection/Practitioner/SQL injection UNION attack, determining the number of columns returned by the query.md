@@ -56,4 +56,4 @@ and we didn't receive an error so now we can use `union` and in this case to fil
 
 ![](../../../0.%20Assets/SQL%20injection%20UNION%20attack,%20determining%20the%20number%20of%20columns%20returned%20by%20the%20query-1784408887247.webp)![](../../../0.%20Assets/SQL%20injection%20UNION%20attack,%20determining%20the%20number%20of%20columns%20returned%20by%20the%20query-1784408908575.webp)
 
-And there you go now we know the table the website is working with, has 3 columns
+And there you go now we know the table the website is working with, has 3 columns.
