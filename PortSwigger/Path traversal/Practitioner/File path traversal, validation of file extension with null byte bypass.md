@@ -15,7 +15,7 @@ My first idea is to do path traversal and then in burp change the extension of t
 
 ![](../../../0.%20Assets/File%20path%20traversal,%20validation%20of%20file%20extension%20with%20null%20byte%20bypass-1784457508997.webp)
 
-As we can appreciate it is expecting `jpg` files
+As we can appreciate it is expecting `jpg` files, so let's try directly changing the extension of the file to accommodate this specification
 
 ![](../../../0.%20Assets/File%20path%20traversal,%20validation%20of%20file%20extension%20with%20null%20byte%20bypass-1784457611566.webp)
 
