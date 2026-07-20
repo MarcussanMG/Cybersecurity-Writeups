@@ -2,6 +2,7 @@
 Category: Access Control
 LAB: https://portswigger.net/web-security/access-control/lab-insecure-direct-object-references
 Difficulty: Apprentice
+Featured:
 ---
 ---
 # Lab description

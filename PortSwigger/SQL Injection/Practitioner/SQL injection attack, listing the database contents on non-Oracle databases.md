@@ -2,6 +2,7 @@
 Category: SQL-Injection
 LAB: https://portswigger.net/web-security/sql-injection/examining-the-database/lab-listing-database-contents-non-oracle
 Difficulty: Practitioner
+Featured: "True"
 ---
 ---
 
