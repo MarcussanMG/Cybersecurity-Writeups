@@ -2,7 +2,6 @@
 Category: Path Traversal
 LAB: https://portswigger.net/web-security/file-path-traversal/lab-validate-file-extension-null-byte-bypass
 Difficulty: Practitioner
-Featured: yes
 ---
 ---
 
