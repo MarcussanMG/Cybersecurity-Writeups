@@ -72,13 +72,11 @@ In this case it is a simple Boolean query to test if we can work around the prob
 
 If this statement equals true (meaning the first letter of the password is `a` ) then we will get the `welcome back!` message
 
----
 ## Note to remember
 
->We are using `substring` and comparing the result to something else because we don't get the information displayed from the database, it's a conditional response \
+>We are using `substring` and comparing the result to something else because we don't get the information displayed from the database, it's a conditional response 
 
 ---
-
 ![](../../../0.%20Assets/Blind%20SQL%20injection%20with%20conditional%20responses-1784547231131.webp)
 
 Okay now we know the first letter of the password is not `a`. This would take a very long time so lets use the intruder to "brute force" the password
