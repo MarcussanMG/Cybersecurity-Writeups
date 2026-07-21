@@ -3,7 +3,7 @@ Category: Machine
 LAB: https://www.vulnhub.com/entry/csharp-vulnsoap,135/
 Difficulty: Medium
 tags:
-Featured: yes
+Featured:
 ---
 ---
 
