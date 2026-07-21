@@ -3,6 +3,7 @@ Category: CTF
 LAB: https://tryhackme.com/room/blog
 Difficulty: Medium
 Featured: yes
+cssclasses:
 ---
 ---
 
