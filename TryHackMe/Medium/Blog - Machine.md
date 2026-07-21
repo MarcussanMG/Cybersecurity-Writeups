@@ -398,6 +398,10 @@ now for the root flag, we will again look for it using `find`
 
 ![](../../0.%20Assets/Blog-1784640349041.webp)
 
+```
+9a0b2b618bef9bfa7ac28c1353d9f318
+```
+
 
 ---
 
