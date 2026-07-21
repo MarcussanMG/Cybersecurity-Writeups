@@ -284,10 +284,14 @@ WantedBy=multi-user.target' > "$TF"
 # Calls the service
 ```
 
-And this spawns the shell with root privileges
+And this spawns the shell with root privileges.
 
 ![](../../0.%20Assets/Vulnversity%20-%20Machine-1784663570083.webp)
 
 ```
 a58ff8579f0a9270368d33a9966c7fd5
 ```
+
+
+
+
