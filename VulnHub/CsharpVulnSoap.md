@@ -22,14 +22,12 @@ If you are curious how sqlmap is performing the checks for, and ultimately explo
 
 # Disclaimer
 
-The intention of this lab is to get comfortable with `web serivices` , `enumerating` then trying to `exploit` them, but the last is not the end goal.
+The intention of this lab is to get comfortable with `web serivices` , `enumerating` them and trying to get information from them.
 
 ```
 Exposed WSDL
 → list operations and parameters
-→ generate request with SoapUI
 → intercept/replay it with Burp
-→ manually test for SQLi in SOAP parameters
 ```
 
 ---
