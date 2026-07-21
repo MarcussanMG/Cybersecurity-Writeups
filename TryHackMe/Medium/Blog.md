@@ -98,7 +98,7 @@ Nmap done: 1 IP address (1 host up) scanned in 16.09 seconds
 
 ![](../../0.%20Assets/Blog-1784626514685.webp)
 
-Nothing special, none of the links worked so they must be in a different directory.
+Checking for the `Robots.txt` file we see that it shows login forms for WordPress but when you try to access them it doesn't find the location so it must be hidden behind something, let's keep digging to see if we find something
 
 ## Samba
 
@@ -161,35 +161,18 @@ gobuster dir -u http://10.130.145.234 -w /usr/share/wordlists/dirb/common.txt -b
 
 From here, some interesting directories are `robots`, `login`, `wp-includes` and `xmlrpc.php` which is an `api endpoint`  
 
+### Directory listing
+
 ![](../../0.%20Assets/Blog-1784626975107.webp)
 
-And `login` redirected correctly to the wordpress login
+Directory listing is enabled which is good for us we even found and API endpoint but I didn't get much from it
+
+### Logging
+And `login` redirected correctly to the WordPress login
 
 ![](../../0.%20Assets/Blog-1784634659718.webp)
 
-
-### Endpoint
-
-![](../../0.%20Assets/Blog-1784627227717.webp)
-
-![](../../0.%20Assets/Blog-1784627294648.webp)
-
-
-okay cool, let's open `BurpSuite` and modify the query to a `POST`
-
-![](../../0.%20Assets/Blog-1784627642295.webp)
-
-And add this `XML` to list the methods
-
-```
-<methodCall>
-	<methodName>
- 		system.listMethods
-	</methodName>
-	<params></params>
-</methodCall>
-```
-
+Now let's enumerate the users and such with `wpscan` and see if we can access the wordpress
 
 
 ### wpscan
@@ -332,6 +315,9 @@ www-data@blog:/var/www/wordpress$ ../../../
 www-data@blog:/home/bjoel$ dir
 dir
 Billy_Joel_Termination_May20-2020.pdf  user.txt
+
+# Looks like we found the user flag
+
 www-data@blog:/home/bjoel$ cat user.txt
 cat user.txt
 You won't find what you're looking for here.
@@ -355,7 +341,7 @@ But when opening the pdf
 
 Nothing really super important so I moved to elevating privileges to see if i can scrape something
 
-I did
+Let's look for files with the `sticky bit` and with a bit of luck we will find one created by the `root` user
 
 ```
 www-data@blog:/home/bjoel$ find / -type f -perm -4000 2>/dev/null
@@ -373,14 +359,28 @@ This looks like a file created from a user not the system
 
 Bingo, it's from the root user and has the `sticky bit` let's try to exploit this
 
-let's see see what does internally
+let's see see what does internally with `ltrace`
+
+### ltrace
+
+`ltrace` shows the library function calls a program makes while it runs.
+
+
 ![](../../0.%20Assets/Blog-1784640099341.webp)
+
+Here, it revealed that `checker` calls:
+
+```
+getenv("admin")
+```
+
+So it checks whether the `admin` environment variable exists.
 
 Let's export the environment variable to 1
 
 ![](../../0.%20Assets/Blog-1784640207501.webp)
 
-Bingo
+Bingo, we are root, now let's look for the `user.txt` again with `find`
 
 ![](../../0.%20Assets/Blog-1784640237929.webp)
 
@@ -392,30 +392,11 @@ And now we found the real flag
 c8421899aae571f7af486492b71a8ab7
 ```
 
-now for the root flag
+now for the root flag, we will again look for it using `find`
 
 ![](../../0.%20Assets/Blog-1784640324585.webp)
 
 ![](../../0.%20Assets/Blog-1784640349041.webp)
-
-
-
-With the credentials we found, let's try logging into the server
-
-```
-┌──(marc㉿martin)-[~/Desktop]
-└─$ ssh kwheel@10.130.133.211             
-The authenticity of host '10.130.133.211 (10.130.133.211)' can't be established.
-ED25519 key fingerprint is SHA256:Ohg9Dbx9BTrg+togpWTsd9834oRhMyGc+jJkf0ywe6g.
-This key is not known by any other names.
-Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
-Warning: Permanently added '10.130.133.211' (ED25519) to the list of known hosts.
-kwheel@10.130.133.211's password: 
-Permission denied, please try again.
-
-```
-
-No luck, we must have to enter through another vector.
 
 
 ---
@@ -425,19 +406,12 @@ No luck, we must have to enter through another vector.
 
 ## root.txt
 
-
-### Answer
-
 ```
 9a0b2b618bef9bfa7ac28c1353d9f318
 ```
 
 
-
 ## user.txt
-
-
-### Answer
 
 ```
 c8421899aae571f7af486492b71a8ab7
@@ -445,11 +419,7 @@ c8421899aae571f7af486492b71a8ab7
 
 
 
-
 ## Where was user.txt found?
-
-
-### Answer
 
 ```
 /media/usb
@@ -457,20 +427,7 @@ c8421899aae571f7af486492b71a8ab7
 
 
 
-
-
 ## What CMS was Billy using?
-
-The answer is `Wordpress`
-
-![](../../0.%20Assets/Blog-1784626433780.webp)
-
-Normally I would go more in depth, because i don't trust `nmap` results to be 100% accurate but `wp-admin` is a directory only found in `wordpress` sites
-
-
-![](../../0.%20Assets/Blog-1784634521997.webp)
-
-
 
 ```
 Wordpress
@@ -478,20 +435,6 @@ Wordpress
 
 
 ## What version of the CMS was running?
-
-From the `nmap` we did at the start, because we used the `NSE` we where able to determine the version. This is normally not enough to really determine if the version is that exact one so let's dig a bit deeper
-![](../../0.%20Assets/Blog-1784634521997.webp)
-
-also used `wpscan`
-
-![](../../0.%20Assets/Blog-1784633413211.webp)
-
-And in the meta tags of the `HTML` you can also find it
-
-![](../../0.%20Assets/Blog-1784634017186.webp)
-
-
-### Answer
 
 ```
 5.0
