@@ -1,5 +1,5 @@
 ---
-Category: CTF
+Category: Machine
 LAB: https://tryhackme.com/room/blog
 Difficulty: Medium
 Featured: yes
