@@ -128,3 +128,31 @@ But also credentials (The password seems to be `encrypted`)
 | `User`  | `Password`                                                       |
 | ------- | ---------------------------------------------------------------- |
 | agent47 | ab5db915fc9cea6c78df88106c6500c57f2b52901ca6cOc6218f04122c3efd14 |
+
+After some reading the password appears to be a `sha256 hash` so we will use `john the reaper`
+
+To do this add the hash to a file called `hash.txt` for instance
+
+![](../../0.%20Assets/Game%20Zone-1784728287613.webp)
+
+And then we will use the following command
+
+```
+john hash.txt --wordlist=/usr/share/wordlists/rockyou.txt --format=RAW-SHA256
+```
+
+
+
+![](../../0.%20Assets/Game%20Zone-1784728279971.webp)
+
+Let's use this credentials to log in `ssh`
+
+![](../../0.%20Assets/Game%20Zone-1784729741472.webp)
+
+![](../../0.%20Assets/Game%20Zone-1784729751709.webp)
+
+```user-flag
+649ac17b1480ac13ef1e4fa579dac95c
+```
+
+
