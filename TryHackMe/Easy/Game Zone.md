@@ -80,3 +80,16 @@ This is what the query would end up looking like
 We say   `admin` or `True` (which tells the database hey this is the admin or any other user because we are basically giving it a `true` statement) then `'` to close the input and make the rest our our input part of the query and `comment` the password part so the database doesn't check for it.
 
 ![](../../0.%20Assets/Game%20Zone-1784726761317.webp)
+
+
+And we are successful at login in:
+
+![](../../0.%20Assets/Game%20Zone-1784727152112.webp)
+
+This appears to be some kind of filter for games, and this probably checks it's data from a database, let's try to simply add `'` to see weather there is a `SQLinjection` vulnerability in the search field 
+- If there is an error then we know there are no safety features (or at least they are very weak) because we are intentionally breaking the query resulting in an error.
+
+![](../../0.%20Assets/Game%20Zone-1784727274571.webp)
+
+Bingo!
+
