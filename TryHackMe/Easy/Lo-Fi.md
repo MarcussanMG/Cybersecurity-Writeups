@@ -44,3 +44,14 @@ First thing we need to do is browse to the victims IP
 When selecting one of the files we can see this
 
 ![](../../0.%20Assets/Lo-Fi-1784731322268.webp)
+
+Let's try doing some `path traversal` and see if it works out of the box
+
+![](../../0.%20Assets/Lo-Fi-1784731433033.webp)
+
+so we just look for `flag.txt`
+
+![](../../0.%20Assets/Lo-Fi-1784731965371.webp)
+
+we needed to specify the exact depth.
+
