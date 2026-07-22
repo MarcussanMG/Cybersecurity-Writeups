@@ -2,7 +2,7 @@
 Category: Web
 LAB: https://tryhackme.com/room/blog
 Difficulty: Medium
-Featured: yes
+Featured:
 cssclasses:
 ---
 ---
