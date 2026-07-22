@@ -93,3 +93,38 @@ This appears to be some kind of filter for games, and this probably checks it's 
 
 Bingo!
 
+Let's dump the database with `SQLmap` for this we first need the field names of the HTML that are then sent to the database so we can tell `SQLmap` where to input it's payloads.
+
+To do this in an easy way we will use `burpsuite` to capture the `request` and then use it with `SQLmap`
+
+![](../../0.%20Assets/Game%20Zone-1784727414425.webp)
+
+Great now that we have the request, let's save it into a file called `request`
+
+![](../../0.%20Assets/Game%20Zone-1784727489652.webp)
+
+now let's use ``sqlmap`` to dump the database
+
+```
+sudo sqlmap -r request.txt --dbms=mysql --dump
+```
+
+- `-r` -> takes the request file
+- `--dbms` -> specify the type of database (we know it's `mysql` because when we where doing the login testing we used `--` as a comment and that is from `mysql`)
+- `--dump` -> We kindly ask `sqlmap` to dump the entire database
+
+![](../../0.%20Assets/Game%20Zone-1784727712148.webp)
+
+And it found 2 tables
+
+Great not only we were able to extract all the game titles:
+
+![](../../0.%20Assets/Game%20Zone-1784727823943.webp)
+
+But also credentials (The password seems to be `encrypted`)
+
+![](../../0.%20Assets/Game%20Zone-1784727817565.webp)
+
+| `User`  | `Password`                                                       |
+| ------- | ---------------------------------------------------------------- |
+| agent47 | ab5db915fc9cea6c78df88106c6500c57f2b52901ca6cOc6218f04122c3efd14 |
