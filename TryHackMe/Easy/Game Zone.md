@@ -67,6 +67,16 @@ This is what a query for checking credentials might look like:
 SELECT * FROM users WHERE username = <input> AND password = <password>
 ```
 
-What if 
+What if we add this payload to the `admin` user
+
+```
+' or 1=1 --
+```
+
+This is what the query would end up looking like
+
+![](../../0.%20Assets/Game%20Zone-1784726932682.webp)
+
+We say   `admin` or `True` (which tells the database hey this is the admin or any other user because we are basically giving it a `true` statement) then `'` to close the input and make the rest our our input part of the query and `comment` the password part so the database doesn't check for it.
 
 ![](../../0.%20Assets/Game%20Zone-1784726761317.webp)
