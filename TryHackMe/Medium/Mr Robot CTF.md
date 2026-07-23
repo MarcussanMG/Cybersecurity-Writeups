@@ -95,4 +95,98 @@ Let's look in the `wp-content` and see if we find anything.
 
 Seems like directory listing is not enabled
 
-Cool let's use `wp-admin` before we brute force the login to see what extra information we get.
+Cool let's use `wpscan` before we brute force the login to see what extra information we get.
+
+Some of the interesting finds are:
+
+- Services
+
+```
+[+] The external WP-Cron seems to be enabled: http://10.128.141.227/wp-cron.php
+ | Found By: Direct Access (Aggressive Detection)
+ | Confidence: 60%
+ | References:
+ |  - https://www.iplocation.net/defend-wordpress-from-ddos
+ |  - https://github.com/wpscanteam/wpscan/issues/1299
+```
+
+- Version
+
+```
+[+] WordPress version 4.3.1 identified (Insecure, released on 2015-09-15).
+ | Found By: Emoji Settings (Passive Detection)
+ |  - http://10.128.141.227/1e82df5.html, Match: 'wp-includes\/js\/wp-emoji-release.min.js?ver=4.3.1'
+ | Confirmed By: Meta Generator (Passive Detection)
+ |  - http://10.128.141.227/1e82df5.html, Match: 'WordPress 4.3.1'
+```
+
+- Themes
+
+```
+[+] WordPress theme in use: twentyfifteen
+ | Location: http://10.128.141.227/wp-content/themes/twentyfifteen/
+ | Last Updated: 2026-05-20T00:00:00.000Z
+ | Readme: http://10.128.141.227/wp-content/themes/twentyfifteen/readme.txt
+ | [!] The version is out of date, the latest version is 4.2
+ | Style URL: http://10.128.141.227/wp-content/themes/twentyfifteen/style.css?ver=4.3.1
+ | Style Name: Twenty Fifteen
+ | Style URI: https://wordpress.org/themes/twentyfifteen/
+ | Description: Our 2015 default theme is clean, blog-focused, and designed for clarity. Twenty Fifteen's simple, st...
+ | Author: the WordPress team
+ | Author URI: https://wordpress.org/
+ |
+ | Found By: Css Style In 404 Page (Passive Detection)
+ |
+ | Version: 1.3 (80% confidence)
+ | Found By: Style (Passive Detection)
+ |  - http://10.128.141.227/wp-content/themes/twentyfifteen/style.css?ver=4.3.1, Match: 'Version: 1.3'
+```
+
+And no plugins for now
+
+I checked the existing exploits with `searchsploit` and found the following
+
+![](../../0.%20Assets/Mr%20Robot%20CTF-1784827280581.webp)
+
+The one that looks interesting is the first one but you have to be authenticated already and the username enumeration one you need to be inside the WordPress as well.
+
+So for now let's try to brute force the login and let's use the wordlist we found before. 
+
+The first thing we will do is to `enumerate users` so we know what users to brute force.
+
+```
+wpscan --url http://10.128.141.227/ -e u 
+```
+
+In this case we didn't find any
+
+```
+[+] Enumerating Users (via Passive and Aggressive Methods)
+ Brute Forcing Author IDs - Time: 00:00:00 <===============================================================================> (10 / 10) 100.00% Time: 00:00:00
+
+[i] No Users Found.
+```
+
+
+Something interesting I found was that there is a verbose output for errors, and in this case we know the user `admin` does not exist, so let's perform an brute force with `burp suite` with the dictionary we found and see if any of the users are the correct ones
+
+![](../../0.%20Assets/Mr%20Robot%20CTF-1784828040212.webp)
+
+
+So set your proxy get the request and send it to the `intruder` , select the position and add the payload position, add the dictionary and start the attack
+
+![](../../0.%20Assets/Mr%20Robot%20CTF-1784828175001.webp)
+
+Then because all the requests are correct, we will look, for a response with a different length (the HTML changes because the error text will change, therefore a different length for the message)
+
+![](../../0.%20Assets/Mr%20Robot%20CTF-1784828253409.webp)
+
+![](../../0.%20Assets/Mr%20Robot%20CTF-1784828309476.webp)
+
+So there we go, we now know the username is `Elliot`
+
+And now we will do the same thing but changing the username to the one we enumerated and selecting the password field as the payload position
+
+![](../../0.%20Assets/Mr%20Robot%20CTF-1784828402976.webp)
+
+
