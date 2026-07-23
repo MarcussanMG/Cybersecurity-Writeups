@@ -2,7 +2,7 @@
 Category: Web
 LAB: https://tryhackme.com/room/mrrobot
 Difficulty: Medium
-Featured:
+Featured: yes
 aliases:
 ---
 
