@@ -185,8 +185,19 @@ Then because all the requests are correct, we will look, for a response with a d
 
 So there we go, we now know the username is `Elliot`
 
-And now we will do the same thing but changing the username to the one we enumerated and selecting the password field as the payload position
+And now for the password we could do the same thing but changing the username to the one we enumerated and selecting the password field as the payload position
 
 ![](../../0.%20Assets/Mr%20Robot%20CTF-1784828402976.webp)
+
+But we will use `wpscan` because I don't have the professional edition of burp suite and there is rate limiting so `wpscan` will be faster.
+- Note we could also use other tools like `hydra` but for this specific case I like `wpscan`
+
+```
+wpscan --url http://10.128.141.227/ -U Elliot -P fsocity.dir
+```
+
+And the password is `ER28-0652`
+
+Let's now log into the WordPress
 
 
