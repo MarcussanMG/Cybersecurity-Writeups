@@ -11,6 +11,8 @@ aliases:
 
 ![800](../../0.%20Assets/Busqueda-1788730613603.webp)
 
+This was not easy whatsoever the foothold yes okay it took me 10 minutes literally but the privilege escalation had a lot of rabbit holes and stuff
+
 ---
 
 # Walkthrough
