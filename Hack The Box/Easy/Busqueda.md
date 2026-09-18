@@ -251,7 +251,3 @@ So i created a script that sends me a reverse shell, and because root is the one
 
 ![](../../0.%20Assets/Busqueda-1788743147056.webp)
 
-
-For the love of god i couldnt make it work so I don't know, I checked walkthroughs and everything (ive been doing the machine for 3,5 hours {and it is supposed to be easy}) so I will leave it at here for now and maybe come back at it another time 
-
-![](../../0.%20Assets/Busqueda-1788743296038.webp)
