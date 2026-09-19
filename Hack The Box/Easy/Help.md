@@ -98,7 +98,7 @@ I tried a lot of different exploits until I found this one which gave a little e
 
 ![](../../0.%20Assets/Help-1789815988083.webp)
 
-So that is what I did, I first uploaded the file
+So that is what I did, I first uploaded the [file](https://github.com/pentestmonkey/php-reverse-shell) (php reverse shell , you need to modify it with your ip and nc port)
 
 ![](../../0.%20Assets/Help-1789816501028.webp)
 
