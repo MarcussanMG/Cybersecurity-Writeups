@@ -147,7 +147,7 @@ This is not really useful, or at least, I haven't found a way to exploit it yet
 
 ![](../../0.%20Assets/Help-1789818708261.webp)
 
-Here for example  we se user crontab
+Here for example we see user crontab
 
 ![](../../0.%20Assets/Help-1789818762603.webp)
 
