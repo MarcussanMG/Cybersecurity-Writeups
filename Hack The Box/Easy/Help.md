@@ -108,7 +108,7 @@ started the listener with
 nc -nlvp 1234
 ```
 
-and run the [exploit](https://github.com/trevlee/helpdeskz_exploit/tree/master) it is a ported version of the original exploit but in Python3
+and run the [exploit](https://github.com/trevlee/helpdeskz_exploit/tree/master), which  is a ported version of the original in Python3
 
 ```
 python3 exploit.py http://help.htb/ filename.php
