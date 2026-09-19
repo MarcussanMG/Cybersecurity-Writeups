@@ -1,7 +1,6 @@
 ---
 Category: OSCP - TjNull
-LAB: |
-  https://app.hackthebox.com/machines/Help?sort_by=created_at&sort_type=desc
+LAB: https://app.hackthebox.com/machines/Help?sort_by=created_at&sort_type=desc
 Difficulty: Easy
 Featured:
 aliases:
