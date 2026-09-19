@@ -2,7 +2,7 @@
 Category: OSCP - TjNull
 LAB: https://app.hackthebox.com/machines/Escape?sort_by=created_at&sort_type=desc
 Difficulty: Medium
-Featured: yes
+Featured:
 aliases:
   - Windows
   - AD
