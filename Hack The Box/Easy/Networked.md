@@ -2,7 +2,7 @@
 Category: OSCP - TjNull
 LAB: https://app.hackthebox.com/machines/Networked?sort_by=created_at&sort_type=desc
 Difficulty: Easy
-Featured: yes
+Featured:
 aliases:
 ---
 
