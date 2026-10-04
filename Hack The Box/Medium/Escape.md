@@ -4,7 +4,6 @@ LAB: https://app.hackthebox.com/machines/Escape?sort_by=created_at&sort_type=des
 Difficulty: Medium
 Featured:
 aliases:
-  - Windows
   - AD
 ---
 
