@@ -4,6 +4,7 @@ LAB:
 Difficulty: Easy
 Featured:
 aliases:
+  - Linux
 ---
 
 ---

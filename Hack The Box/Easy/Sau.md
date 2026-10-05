@@ -4,6 +4,7 @@ LAB: https://app.hackthebox.com/machines/Sau?sort_by=created_at&sort_type=desc
 Difficulty: Easy
 Featured:
 aliases:
+  - Linux
 ---
 
 ---

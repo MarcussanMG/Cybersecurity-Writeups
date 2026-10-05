@@ -4,6 +4,7 @@ LAB: https://app.hackthebox.com/machines/Networked?sort_by=created_at&sort_type=
 Difficulty: Easy
 Featured:
 aliases:
+  - Linux
 ---
 
 ---

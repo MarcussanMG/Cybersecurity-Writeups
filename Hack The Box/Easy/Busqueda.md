@@ -4,6 +4,7 @@ LAB: https://app.hackthebox.com/machines/Busqueda?sort_by=created_at&sort_type=d
 Difficulty: Easy
 Featured:
 aliases:
+  - Linux
 ---
 
 ---
