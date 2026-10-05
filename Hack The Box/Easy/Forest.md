@@ -4,6 +4,8 @@ LAB: https://app.hackthebox.com/machines/Forest?sort_by=created_at&sort_type=des
 Difficulty: Easy
 Featured: yes
 aliases:
+  - AD
+  - Windwos
 ---
 
 ---
