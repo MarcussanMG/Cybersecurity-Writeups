@@ -5,7 +5,7 @@ Difficulty: Easy
 Featured: yes
 aliases:
   - AD
-  - Windwos
+  - Windows
 ---
 
 ---
