@@ -2,7 +2,7 @@
 Category: OSCP - TjNull
 LAB: https://app.hackthebox.com/machines/Cicada?sort_by=created_at&sort_type=desc
 Difficulty: Easy
-Featured: yes
+Featured:
 aliases:
   - AD
   - Windows
