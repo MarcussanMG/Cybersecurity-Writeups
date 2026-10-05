@@ -4,8 +4,8 @@ LAB: https://app.hackthebox.com/machines/Cicada?sort_by=created_at&sort_type=des
 Difficulty: Easy
 Featured:
 aliases:
-  - Windows
   - AD
+  - Windows
 ---
 
 ---
