@@ -5,7 +5,6 @@ Difficulty: Medium
 Featured: yes
 aliases:
   - AD
-  - Windows
 ---
 
 ---
