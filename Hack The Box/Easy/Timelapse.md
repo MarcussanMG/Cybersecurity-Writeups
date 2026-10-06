@@ -1,7 +1,7 @@
 ---
 Category: OSCP - TjNull
 LAB: https://app.hackthebox.com/machines/Timelapse?tab=play_machine
-Difficulty:
+Difficulty: Easy
 Featured: yes
 aliases:
   - AD
