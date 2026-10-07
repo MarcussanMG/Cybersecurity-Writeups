@@ -2,7 +2,7 @@
 Category: OSCP - TjNull
 LAB: https://app.hackthebox.com/machines/Administrator?tab=play_machine
 Difficulty: Medium
-Featured:
+Featured: yes
 aliases:
   - Windows
 ---
