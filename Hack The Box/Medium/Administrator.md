@@ -366,7 +366,7 @@ Now we just follow bloodhounds path
 
 ![](../../0.%20Assets/Administrator-1791376244697.webp)
 
-I had some issues but I figured out, basically we want to make a targeted `kerberoast` attack and because `kerberoasting` depends on a SPN attached to a user and `Ethan` does not have one we need to inject one
+I had some issues but I figured it out, basically we want to make a targeted `kerberoast` attack and because `kerberoasting` depends on a SPN attached to a user and `Ethan` does not have one we need to inject one
 
 First mimic the DC's time
 
