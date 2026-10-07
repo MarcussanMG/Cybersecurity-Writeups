@@ -213,9 +213,9 @@ vescCheck -Extended -Audit -Report PrivescCheck_Full -Format HTML"
 
 ![](../../0.%20Assets/Timelapse-1791311288443.webp)
 
-Regardless from the summary we can have an idea of what to expect
+Regardless from the summary we can have an idea of what to expect.
 
-I recommend starting a python server and opening the HTML file
+I recommend starting a python server and opening the HTML file.
 
 ![](../../0.%20Assets/Timelapse-1791311620026.webp)
 
