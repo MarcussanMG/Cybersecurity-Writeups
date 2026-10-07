@@ -190,6 +190,7 @@ Under the Linux Abuse tab, Bloodhound conveniently spells out how to abuse this 
 
 ![](../../0.%20Assets/Administrator-1791368023903.webp)
 
+
 `Targeted kerberoast` is a neat technique, but I don't want a hash, I want direct access to the user, so let's try the `Force change password` route instead.
 
 I ran into some issues, so I looked it up online.
