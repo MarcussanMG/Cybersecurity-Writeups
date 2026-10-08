@@ -14,6 +14,8 @@ aliases:
 
 ![](../../0.%20Assets/Broker-1791460962554.webp)
 
+Pretty easy machine I would recommend for people starting out.
+
 ---
 
 # Walkthrough
