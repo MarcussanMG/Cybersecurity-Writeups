@@ -88,7 +88,7 @@ The server allows anonymous connections.
 nxc smb $T -u '' -p ''
 ```
 
-![[Administrator-1791365773171.webp]]
+![](../../0.%20Assets/Administrator-1791767438244.webp)
 
 But we can't see any shares or enumerate users, and the `Guest` user is disabled.
 
