@@ -1,7 +1,7 @@
 ---
 Category: OSCP - TjNull
-LAB: https://portal.offsec.com/machine/nibbles-209/overview/details
-Difficulty:
+LAB: https://portal.offsec.com/machine/dvr4-36048/overview/details
+Difficulty: Medium
 Featured:
 aliases:
 ---

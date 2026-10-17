@@ -1,7 +1,7 @@
 ---
 Category: OSCP - TjNull
-LAB:
-Difficulty:
+LAB: https://portal.offsec.com/machine/pelican-440/overview
+Difficulty: Medium
 Featured:
 aliases:
 ---
