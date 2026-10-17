@@ -9,6 +9,11 @@ aliases:
 ---
 # Information / Description
 
+Starting credentials for the lab:
+
+```
+lbennett : !!reiD123
+```
 
 ---
 
