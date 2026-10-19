@@ -233,7 +233,7 @@ xfreerdp /v:10.0.2.43 /u:eknight /p:'!!Stud87'
 ![](../0.%20Assets/AD%20chain%201-1792419253347.webp)
 
 
-checking lsa we find quite some hashes including `mthompson` and if we check in bloodhound we see `mrhompson` is a domain admin
+checking `lsa` we find quite some hashes including `mthompson` and if we check in bloodhound we see `mrhompson` is a domain admin
 
 ![](../0.%20Assets/AD%20chain%201-1792419971996.webp)
 
