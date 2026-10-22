@@ -4,6 +4,7 @@ LAB: https://portal.offsec.com/machine/algernon-239/overview/details
 Difficulty: Easy
 Featured:
 aliases:
+  - Windows
 ---
 
 ---

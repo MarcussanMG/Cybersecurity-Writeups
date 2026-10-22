@@ -4,6 +4,7 @@ LAB: https://portal.offsec.com/machine/clamav-179/overview/details
 Difficulty: Easy
 Featured:
 aliases:
+  - Linux
 ---
 
 ---
