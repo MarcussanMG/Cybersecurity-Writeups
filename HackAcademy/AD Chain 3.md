@@ -288,3 +288,5 @@ And we are in DC01 as domain admin
 
 
 ![](../0.%20Assets/AD%20Chain%203-1793368945689.webp)
+
+I could've skipped Brian and directly make `jbailey` an administrator but I didn't see that while doing the machine
