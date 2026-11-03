@@ -13,6 +13,7 @@ aliases:
 DISCOUNT-487C2 <-- discount code for academy
 
 
+
 Starting credentials for the lab:
 
 ```

@@ -111,7 +111,6 @@ Let's see if we can access `winrm`
 
 Bingo!, let's access it
 
-
 ```
 evil-winrm -i 10.0.2.3 -u 'twest' -p 'HappyCactus$10'
 ```
